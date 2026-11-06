@@ -1,0 +1,27 @@
+# Build
+target/
+build/
+out/
+bin/
+.gradle/
+*.class
+*.war
+*.ear
+*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# Logs et fichiers locaux
+*.log
+.env
+
+# Système
+.DS_Store
+Thumbs.db
