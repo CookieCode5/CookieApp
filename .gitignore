@@ -4,6 +4,8 @@ build/
 out/
 bin/
 .gradle/
+.claude/
+CLAUDE.md
 *.class
 *.war
 *.ear
