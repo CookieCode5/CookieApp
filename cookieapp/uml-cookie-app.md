@@ -71,7 +71,6 @@ class Recipe {
   preparation_time : INT
   cooking_time : INT
   difficulty : VARCHAR «Difficulty»
-  category : VARCHAR «Category»
   vegetarian : BOOLEAN
   vegan : BOOLEAN
   premium : BOOLEAN
@@ -192,16 +191,6 @@ class Difficulty {
   EASY
   MEDIUM
   HARD
-}
-class Category {
-  <<enumeration>>
-  CAKE
-  TART
-  PASTRY
-  COOKIE
-  ENTREMET
-  CREAM_DESSERT
-  CONFECTIONERY
 }
 class Unit {
   <<enumeration>>
@@ -362,7 +351,6 @@ classDiagram
     class RecipeForm {
         String title
         String description
-        Category category
         Difficulty difficulty
         int baseServings
         int preparationTime
