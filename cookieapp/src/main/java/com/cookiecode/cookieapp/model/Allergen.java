@@ -1,4 +1,4 @@
-package com.cookiecode.cookieapp.model;
+package model;
 
 public class Allergen {
 
