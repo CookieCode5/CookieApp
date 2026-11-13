@@ -1,6 +1,6 @@
 package com.cookiecode.cookieapp.service;
 
-import com.cookiecode.cookieapp.model.Recette;
+import com.cookiecode.cookieapp.model.Recipe;
 import com.cookiecode.cookieapp.repository.RecetteRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -10,22 +10,20 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
-public class RecetteService {
+public class RecipeService {
 
     private final RecetteRepository recetteRepository;
 
-    public RecetteService(RecetteRepository recetteRepository) {
+    public RecipeService(RecetteRepository recetteRepository) {
         this.recetteRepository = recetteRepository;
     }
 
-    /** Toutes les recettes, les plus récentes d'abord (page /recettes). */
-    public List<Recette> lister() {
-        return recetteRepository.findAllByOrderByDateCreationDesc();
+    public List<Recipe> lister() {
+        return recetteRepository.findAllByOrderByCreatedAtDesc();
     }
 
-    /** Les n recettes les plus récentes (page d'accueil). */
-    public List<Recette> dernieres(int n) {
-        return recetteRepository.findAllByOrderByDateCreationDesc(PageRequest.of(0, n));
+    public List<Recipe> dernieres(int n) {
+        return recetteRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, n));
     }
 
     public long compter() {
