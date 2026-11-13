@@ -26,29 +26,27 @@ public class Recipe {
     private String description;
 
     //URL path
-    private String image_url;
+    // camelCase : Spring génère quand même les colonnes image_url, base_servings, etc.
+    private String imageUrl;
 
-    private int base_servings = 4;
-    private int preparation_time;
-    private int cooking_time;
+    private int baseServings = 4;
+    private int preparationTime;
+    private int cookingTime;
 
     @Enumerated(EnumType.STRING)
     private Difficulte difficulty;
-
-    @Enumerated(EnumType.STRING)
-    private Categorie category;
 
     private boolean vegetarian;
     private boolean vegan;
     private boolean premium;
 
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "author_id")
-    private Utilisateur author_id;
+    private User author;
 
     public int totalTime() {
-        return preparation_time + cooking_time;
+        return preparationTime + cookingTime;
     }
 }
