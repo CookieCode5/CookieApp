@@ -1,12 +1,12 @@
-// Palette de la maquette Figma. Chargé après le script Tailwind (CDN).
+// Grapic Chart used for UI design made in Figma
 tailwind.config = {
   theme: {
     extend: {
       colors: {
-        primary: '#944925',   // boutons
-        dark: '#362115',      // fonds sombres
-        cream: '#FFF8F4',     // fond clair
-        sand: '#FEEADA',      // fond clair 2
+        primary: '#944925',   // buttons 
+        dark: '#362115',      // dark bg
+        cream: '#FFF8F4',     // bright bg 1
+        sand: '#FEEADA',      // bright bg 2
         accent: '#C89D9C'
       },
       fontFamily: {
