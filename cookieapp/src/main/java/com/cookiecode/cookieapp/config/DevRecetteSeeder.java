@@ -50,25 +50,32 @@ public class DevRecetteSeeder implements CommandLineRunner {
 
         // du plus ancien au plus récent (minusHours décroissant)
         creer(chef, "Tiramisu", "Le classique italien : mascarpone, café et cacao.",
+                "/images/recipes/tiramisu.jpeg",
                 Difficulte.MOYEN, 30, 0, true, false, true, 5);
         creer(chef, "Crêpes maison", "Une pâte légère, prête en dix minutes, pour le goûter.",
+                "/images/recipes/crepe-housemade.jpeg",
                 Difficulte.FACILE, 10, 20, true, false, false, 4);
         creer(chef, "Brownie vegan", "Fondant au chocolat noir, sans œufs ni beurre.",
+                "/images/recipes/brownie-vegan.jpeg",
                 Difficulte.FACILE, 15, 25, true, true, false, 3);
         creer(chef, "Tarte aux pommes", "Pâte brisée maison et fines lamelles de pommes caramélisées.",
+                "/images/recipes/applepie.jpeg",
                 Difficulte.MOYEN, 30, 40, true, false, false, 2);
         creer(chef, "Madeleines", "Petits gâteaux bombés au beurre et au zeste de citron.",
+                "/images/recipes/madeleine.jpeg",
                 Difficulte.FACILE, 15, 10, true, false, false, 1);
         creer(chef, "Cookies aux pépites de chocolat", "Croustillants dehors, moelleux dedans.",
+                "/images/recipes/chocolate-chip-cookies.jpeg",
                 Difficulte.FACILE, 15, 12, true, false, false, 0);
     }
 
-    private void creer(User auteur, String titre, String description,
+    private void creer(User auteur, String titre, String description, String imageUrl,
                        Difficulte difficulte, int prep, int cuisson,
                        boolean vegetarien, boolean vegan, boolean premium, int ageEnHeures) {
         Recipe r = new Recipe();
         r.setTitle(titre);
         r.setDescription(description);
+        r.setImageUrl(imageUrl);
         r.setDifficulty(difficulte);
         r.setPreparationTime(prep);
         r.setCookingTime(cuisson);
