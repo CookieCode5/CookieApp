@@ -1,18 +1,18 @@
 package com.cookiecode.cookieapp.controller;
 
-import com.cookiecode.cookieapp.service.RecetteService;
+import com.cookiecode.cookieapp.service.RecipeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class AccueilController {
+public class HomeController {
 
     private static final int NB_RECETTES_ACCUEIL = 6;
 
-    private final RecetteService recetteService;
+    private final RecipeService recetteService;
 
-    public AccueilController(RecetteService recetteService) {
+    public HomeController(RecipeService recetteService) {
         this.recetteService = recetteService;
     }
 

@@ -1,25 +1,25 @@
 package com.cookiecode.cookieapp.controller;
 
-import com.cookiecode.cookieapp.service.RecetteService;
+import com.cookiecode.cookieapp.service.RecipeService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class RecetteController {
+public class RecipeController {
 
-    private final RecetteService recetteService;
+    private final RecipeService recipeService;
 
-    public RecetteController(RecetteService recetteService) {
-        this.recetteService = recetteService;
+    public RecipeController(RecipeService recetteService) {
+        this.recipeService = recetteService;
     }
 
     /** Liste des recettes (lecture seule). Recherche et filtres : Sprint 3. */
-    @GetMapping("/recettes")
+    @GetMapping("/recipes")
     public String liste(Model model) {
-        var recettes = recetteService.lister();
-        model.addAttribute("recettes", recettes);
-        model.addAttribute("nbRecettes", recettes.size());
-        return "recettes/liste";
+        var recipes = recipeService.lister();
+        model.addAttribute("recettes", recipes);
+        model.addAttribute("nbRecettes", recipes.size());
+        return "recipes/liste";
     }
 }
