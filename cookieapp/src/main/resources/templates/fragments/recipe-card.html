@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Carte d'une recette (lecture seule). Utilisation : th:replace="~{fragments/recette-card :: carte(${r})}"
+     Quand la fiche recette de Nylan existe (/recettes/{id}), envelopper la carte dans
+     <a th:href="@{/recettes/{id}(id=${r.id})}">. -->
+<article th:fragment="carte(r)"
+         class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-sand">
+    <div class="relative h-44 bg-sand">
+        <img th:if="${r.imageUrl != null and !r.imageUrl.isBlank()}"
+             th:src="@{${r.imageUrl}}" th:alt="${r.titre}"
+             class="h-full w-full object-cover">
+        <div th:unless="${r.imageUrl != null and !r.imageUrl.isBlank()}"
+             class="flex h-full w-full items-center justify-center text-5xl" aria-hidden="true">🍪</div>
+        <span th:if="${r.premium}"
+              class="absolute right-3 top-3 rounded-full bg-dark px-3 py-1 text-xs font-semibold text-cream">
+            Premium
+        </span>
+    </div>
+    <div class="flex flex-1 flex-col gap-2 p-5">
+        <p class="text-xs font-bold uppercase tracking-wide text-primary"
+           th:text="${r.categorie != null} ? ${r.categorie.libelle} : ''">Plat</p>
+        <h3 class="text-lg font-bold leading-snug" th:text="${r.titre}">Titre de la recette</h3>
+        <p class="line-clamp-2 text-sm text-dark/70" th:text="${r.description}">Description</p>
+        <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-sm text-dark/80">
+            <span>⏱ <span th:text="${r.tempsTotal()}">30</span> min</span>
+            <span th:if="${r.difficulte != null}" th:text="${r.difficulte.libelle}">Facile</span>
+            <span th:if="${r.vegan}">🌱 Vegan</span>
+            <span th:if="${r.vegetarien and !r.vegan}">🥕 Végétarien</span>
+        </div>
+        <p class="text-xs text-dark/60" th:if="${r.auteur != null}">
+            par <span class="font-semibold" th:text="${r.auteur.pseudo}">Auteur</span>
+        </p>
+    </div>
+</article>
+</html>

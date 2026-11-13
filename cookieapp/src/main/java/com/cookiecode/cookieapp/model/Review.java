@@ -1,4 +1,4 @@
-package model;
+package com.cookiecode.cookieapp.model;
 
 import java.time.LocalDate;
 

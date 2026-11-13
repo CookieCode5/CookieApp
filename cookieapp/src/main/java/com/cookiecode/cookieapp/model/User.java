@@ -1,5 +1,5 @@
-package model;
-import model.enums.Role;
+package com.cookiecode.cookieapp.model;
+import com.cookiecode.cookieapp.model.enums.Role;
 
 import java.time.LocalDate;
 

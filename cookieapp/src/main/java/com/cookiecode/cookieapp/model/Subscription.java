@@ -1,5 +1,5 @@
-package model;
-import model.enums.SubscriptionType;
+package com.cookiecode.cookieapp.model;
+import com.cookiecode.cookieapp.model.enums.SubscriptionType;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
