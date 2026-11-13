@@ -1,5 +1,6 @@
 package com.cookiecode.cookieapp.service;
 
+import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
 import com.cookiecode.cookieapp.model.User;
@@ -47,6 +48,23 @@ public class UserService {
         User saved = userRepository.save(user);
         subscriptionService.createFree(saved);
         return saved;
+    }
+
+    // Same message for an unknown email and a wrong password, so nobody can test which emails have an account
+    @Transactional(readOnly = true)
+    public User authenticate(String email, String rawPassword) {
+        return userRepository.findByEmail(normalizeEmail(email))
+                .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword_hash()))
+                .orElseThrow(() -> new BusinessException("Email ou mot de passe incorrect."));
+    }
+
+    public PublicUser toPublicUser(User user) {
+        return new PublicUser(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                subscriptionService.isPremium(user),
+                user.getRole() == Role.ADMIN);
     }
 
     static String normalizeEmail(String email) {
