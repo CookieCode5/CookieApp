@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Connexion')}"></head>
+<body class="bg-cream font-sans text-dark">
+<main class="flex min-h-screen items-center justify-center px-4 py-12">
+    <div class="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-sand bg-white shadow-md md:grid-cols-2">
+
+                <section class="flex flex-col justify-between bg-sand p-8 lg:p-12">
+            <a th:href="@{/}" class="flex items-center gap-3">
+                <span class="text-4xl" aria-hidden="true">🍪</span>
+                <span class="text-xl font-extrabold">CookieCode</span>
+            </a>
+            <div class="my-12">
+                <span class="inline-block rounded-full bg-cream px-3 py-1 text-xs font-bold uppercase tracking-wide text-primary">
+                    Cuisine maligne du quotidien
+                </span>
+                <h2 class="mt-6 text-3xl font-extrabold leading-tight">
+                    Cuisinez de bons petits plats, <span class="text-primary">simplement et sans gaspillage.</span>
+                </h2>
+                <p class="mt-4 text-dark/70">
+                    Retrouvez vos recettes, vos favoris et votre garde-manger.
+                </p>
+            </div>
+            <ul class="flex flex-wrap gap-x-6 gap-y-2 border-t border-dark/10 pt-6 text-sm font-semibold text-dark/70">
+                <li>✓ Recettes faciles</li>
+                <li>✓ Anti-gaspillage</li>
+            </ul>
+        </section>
+
+        <section class="flex flex-col justify-center p-8 lg:p-10">
+            <h1 class="text-2xl font-extrabold">Bon retour parmi nous</h1>
+            <p class="mt-1 text-dark/70">Connectez-vous à votre espace CookieCode.</p>
+
+            <div th:replace="~{fragments/flash :: flash}"></div>
+
+            <p th:if="${loginRequired}" role="status"
+               class="mt-4 rounded-xl border border-primary/30 bg-sand px-4 py-3 text-sm font-semibold text-primary">
+                Connectez-vous pour accéder à cette page.
+            </p>
+
+            <form th:action="@{/login}" th:object="${loginForm}" method="post" class="mt-6 space-y-4" novalidate>
+
+                <p th:if="${#fields.hasGlobalErrors()}" th:errors="*{global}" role="alert"
+                   class="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                    Email ou mot de passe incorrect.
+                </p>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="email" class="text-sm font-semibold">Adresse email</label>
+                    <input th:field="*{email}" id="email" type="email" autocomplete="email" required
+                           placeholder="exemple@email.fr"
+                           class="rounded-xl border border-sand bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
+                    <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-sm text-red-700"></p>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="password" class="text-sm font-semibold">Mot de passe</label>
+                    <input th:field="*{password}" id="password" type="password" autocomplete="current-password" required
+                           placeholder="••••••••"
+                           class="rounded-xl border border-sand bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
+                    <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-sm text-red-700"></p>
+                </div>
+
+                <button type="submit"
+                        class="mt-2 w-full rounded-xl bg-primary px-6 py-3 font-semibold text-cream transition hover:opacity-90">
+                    Se connecter
+                </button>
+            </form>
+
+            <p class="mt-8 border-t border-sand pt-6 text-center text-dark/70">
+                Pas encore de compte ?
+                <a th:href="@{/register}" class="ml-1 font-semibold text-primary underline hover:opacity-90">Créer un compte</a>
+            </p>
+        </section>
+    </div>
+</main>
+</body>
+</html>
