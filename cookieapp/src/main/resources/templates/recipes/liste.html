@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Recettes')}"></head>
+<body class="bg-cream font-sans text-dark">
+
+<header th:replace="~{fragments/header :: header('recettes')}"></header>
+
+<main class="mx-auto max-w-6xl px-6 pt-12">
+    <h1 class="text-3xl font-extrabold">Toutes les recettes</h1>
+    <p class="mt-1 text-dark/70">
+        <span th:text="${nbRecettes}">0</span>
+        <span th:text="${nbRecettes > 1} ? 'recettes' : 'recette'">recettes</span>
+    </p>
+
+    <p th:if="${#lists.isEmpty(recettes)}" class="mt-8 rounded-2xl bg-white p-8 text-center text-dark/70">
+        Aucune recette pour le moment.
+    </p>
+
+    <div th:unless="${#lists.isEmpty(recettes)}"
+         class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <th:block th:each="r : ${recettes}">
+            <div th:replace="~{fragments/recette-card :: carte(${r})}"></div>
+        </th:block>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
