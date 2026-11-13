@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<!-- Provisoire : sera remplacé par le header de Nylan.
+     Ajouter Frigo Magique / Créer une recette / Connexion quand ces routes existent
+     (aucun lien ne doit mener à une 404 pendant la démo). -->
+<header th:fragment="header(actif)" class="bg-dark text-cream">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <a th:href="@{/}" class="flex items-center gap-2 text-xl font-extrabold">
+            <span aria-hidden="true">🍪</span> CookieApp
+        </a>
+        <ul class="flex items-center gap-6 text-sm font-semibold">
+            <li>
+                <a th:href="@{/}"
+                   th:classappend="${actif == 'accueil'} ? 'border-b-2 border-accent pb-1' : 'opacity-80 hover:opacity-100'">
+                    Accueil
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/recettes}"
+                   th:classappend="${actif == 'recettes'} ? 'border-b-2 border-accent pb-1' : 'opacity-80 hover:opacity-100'">
+                    Recettes
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+</html>
