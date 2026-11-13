@@ -1,4 +1,4 @@
-package com.cookiecode.cookieapp;
+package com.cookiecode.cookieapp.model;
 
 public class Rating {
 
