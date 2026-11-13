@@ -6,6 +6,7 @@ tailwind.config = {
         primary: '#A0522D',   // buttons 
         dark: '#4E3629',      // dark bg
         sand: '#E6D3C3',     // bright bg 1
+        cream: '#FFF8F4',    // bright bg 2, text on dark backgrounds
         accent: '#C89D9C'
       },
       fontFamily: {
