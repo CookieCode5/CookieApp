@@ -1,13 +1,11 @@
-package com.cookiecode.cookieapp;
+package com.cookiecode.cookieapp.service;
 
+import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
 import com.cookiecode.cookieapp.model.User;
 import com.cookiecode.cookieapp.model.enums.Role;
 import com.cookiecode.cookieapp.repository.UtilisateurRepository;
-import com.cookiecode.cookieapp.service.SubscriptionService;
-import com.cookiecode.cookieapp.service.UserService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -96,4 +96,49 @@ class UserServiceTest {
         verifyNoInteractions(userRepository, subscriptionService);
     }
 
+    private User existingUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("amina");
+        user.setEmail("amina@test.fr");
+        user.setPassword_hash(passwordEncoder.encode("motdepasse"));
+        user.setRole(Role.USER);
+        return user;
+    }
+
+    @Test
+    void authenticate_acceptsTheRightPasswordWhateverTheEmailCase() {
+        when(userRepository.findByEmail("amina@test.fr")).thenReturn(Optional.of(existingUser()));
+
+        User user = userService.authenticate(" Amina@test.fr", "motdepasse");
+
+        assertEquals("amina", user.getUsername());
+    }
+
+    @Test
+    void authenticate_refusesAWrongPassword() {
+        when(userRepository.findByEmail("amina@test.fr")).thenReturn(Optional.of(existingUser()));
+
+        assertThrows(BusinessException.class, () -> userService.authenticate("amina@test.fr", "mauvais"));
+    }
+
+    @Test
+    void authenticate_refusesAnUnknownEmail() {
+        when(userRepository.findByEmail("inconnu@test.fr")).thenReturn(Optional.empty());
+
+        assertThrows(BusinessException.class, () -> userService.authenticate("inconnu@test.fr", "motdepasse"));
+    }
+
+    @Test
+    void toPublicUser_keepsNoPasswordAndReadsPremiumFromTheSubscription() {
+        User user = existingUser();
+        when(subscriptionService.isPremium(user)).thenReturn(true);
+
+        PublicUser publicUser = userService.toPublicUser(user);
+
+        assertEquals(1L, publicUser.getId());
+        assertEquals("amina", publicUser.getUsername());
+        assertTrue(publicUser.isPremium());
+        assertFalse(publicUser.isAdmin());
+    }
 }
