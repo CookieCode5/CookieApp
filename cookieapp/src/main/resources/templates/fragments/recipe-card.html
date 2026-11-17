@@ -7,7 +7,7 @@
          class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-sand">
     <div class="relative h-44 bg-sand">
         <img th:if="${r.imageUrl != null and !r.imageUrl.isBlank()}"
-             th:src="@{${r.imageUrl}}" th:alt="${r.titre}"
+             th:src="@{${r.imageUrl}}" th:alt="${r.title}"
              class="h-full w-full object-cover">
         <div th:unless="${r.imageUrl != null and !r.imageUrl.isBlank()}"
              class="flex h-full w-full items-center justify-center text-5xl" aria-hidden="true">🍪</div>
@@ -17,16 +17,16 @@
         </span>
     </div>
     <div class="flex flex-1 flex-col gap-2 p-5">
-        <h3 class="text-lg font-bold leading-snug" th:text="${r.titre}">Titre de la recette</h3>
+        <h3 class="text-lg font-bold leading-snug" th:text="${r.title}">Titre de la recette</h3>
         <p class="line-clamp-2 text-sm text-dark/70" th:text="${r.description}">Description</p>
         <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 text-sm text-dark/80">
-            <span>⏱ <span th:text="${r.tempsTotal()}">30</span> min</span>
-            <span th:if="${r.difficulte != null}" th:text="${r.difficulte.libelle}">Facile</span>
+            <span>⏱ <span th:text="${r.totalTime()}">30</span> min</span>
+            <span th:if="${r.difficulty != null}" th:text="${r.difficulty.libelle}">Facile</span>
             <span th:if="${r.vegan}">🌱 Vegan</span>
-            <span th:if="${r.vegetarien and !r.vegan}">🥕 Végétarien</span>
+            <span th:if="${r.vegetarian and !r.vegan}">🥕 Végétarien</span>
         </div>
-        <p class="text-xs text-dark/60" th:if="${r.auteur != null}">
-            par <span class="font-semibold" th:text="${r.auteur.pseudo}">Auteur</span>
+        <p class="text-xs text-dark/60" th:if="${r.author != null}">
+            par <span class="font-semibold" th:text="${r.author.username}">Auteur</span>
         </p>
     </div>
 </article>

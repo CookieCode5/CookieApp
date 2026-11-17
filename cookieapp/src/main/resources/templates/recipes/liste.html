@@ -19,7 +19,7 @@
     <div th:unless="${#lists.isEmpty(recettes)}"
          class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <th:block th:each="r : ${recettes}">
-            <div th:replace="~{fragments/recette-card :: carte(${r})}"></div>
+            <div th:replace="~{fragments/recipe-card :: carte(${r})}"></div>
         </th:block>
     </div>
 </main>

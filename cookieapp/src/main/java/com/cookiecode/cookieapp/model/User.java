@@ -3,6 +3,7 @@ import com.cookiecode.cookieapp.model.enums.Role;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +19,7 @@ import lombok.ToString;
 @Setter 
 @ToString 
 @Entity 
+@Table(name = "users")
 public class User {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
