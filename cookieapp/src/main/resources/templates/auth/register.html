@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Créer un compte')}"></head>
+<body class="bg-cream font-sans text-dark">
+<main class="flex min-h-screen items-center justify-center px-4 py-12">
+    <div class="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-sand bg-white shadow-md md:grid-cols-2">
+
+                <section class="flex flex-col justify-between bg-sand p-8 lg:p-12">
+            <a th:href="@{/}" class="flex items-center gap-3">
+                <span class="text-4xl" aria-hidden="true">🍪</span>
+                <span class="text-xl font-extrabold">CookieCode</span>
+            </a>
+            <div class="my-12">
+                <h2 class="text-3xl font-extrabold leading-tight">
+                    Rejoignez la communauté et <span class="text-primary">cuisinez sans gaspiller.</span>
+                </h2>
+                <p class="mt-4 text-dark/70">
+                    Publiez vos recettes, notez celles des autres et laissez le Frigo Magique
+                    vous proposer quoi cuisiner avec ce que vous avez.
+                </p>
+            </div>
+            <ul class="flex flex-wrap gap-x-6 gap-y-2 border-t border-dark/10 pt-6 text-sm font-semibold text-dark/70">
+                <li>✓ Gratuit</li>
+                <li>✓ 3 recherches Frigo par jour</li>
+                <li>✓ Premium sans engagement</li>
+            </ul>
+        </section>
+
+        <section class="flex flex-col justify-center p-8 lg:p-10">
+            <h1 class="text-2xl font-extrabold">Créer un compte</h1>
+            <p class="mt-1 text-dark/70">Quelques secondes suffisent.</p>
+
+            <div th:replace="~{fragments/flash :: flash}"></div>
+
+            <form th:action="@{/register}" th:object="${registerForm}" method="post" class="mt-6 space-y-4" novalidate>
+
+                <p th:if="${#fields.hasGlobalErrors()}" th:errors="*{global}" role="alert"
+                   class="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                    Erreur globale
+                </p>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="username" class="text-sm font-semibold">Pseudo</label>
+                    <input th:field="*{username}" id="username" type="text" autocomplete="username" required
+                           placeholder="ex. amina_cuisine"
+                           th:classappend="${#fields.hasErrors('username')} ? 'border-red-400' : 'border-sand'"
+                           class="rounded-xl border bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
+                    <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-sm text-red-700"></p>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="email" class="text-sm font-semibold">Adresse email</label>
+                    <input th:field="*{email}" id="email" type="email" autocomplete="email" required
+                           placeholder="exemple@email.fr"
+                           th:classappend="${#fields.hasErrors('email')} ? 'border-red-400' : 'border-sand'"
+                           class="rounded-xl border bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
+                    <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-sm text-red-700"></p>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="password" class="text-sm font-semibold">Mot de passe</label>
+                    <input th:field="*{password}" id="password" type="password" autocomplete="new-password" required
+                           placeholder="8 caractères minimum"
+                           th:classappend="${#fields.hasErrors('password')} ? 'border-red-400' : 'border-sand'"
+                           class="rounded-xl border bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
+                    <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-sm text-red-700"></p>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label for="confirmPassword" class="text-sm font-semibold">Confirmer le mot de passe</label>
+                    <input th:field="*{confirmPassword}" id="confirmPassword" type="password" autocomplete="new-password" required
+                           th:classappend="${#fields.hasErrors('confirmPassword') or #fields.hasErrors('passwordConfirmed')} ? 'border-red-400' : 'border-sand'"
+                           class="rounded-xl border bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
+                    <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="text-sm text-red-700"></p>
+                    <p th:if="${#fields.hasErrors('passwordConfirmed')}" th:errors="*{passwordConfirmed}" class="text-sm text-red-700"></p>
+                </div>
+
+                <button type="submit"
+                        class="mt-2 w-full rounded-xl bg-primary px-6 py-3 font-semibold text-cream transition hover:opacity-90">
+                    Créer mon compte
+                </button>
+            </form>
+
+            <p class="mt-8 border-t border-sand pt-6 text-center text-dark/70">
+                Déjà un compte ?
+                <a th:href="@{/login}" class="ml-1 font-semibold text-primary underline hover:opacity-90">Se connecter</a>
+            </p>
+        </section>
+    </div>
+</main>
+</body>
+</html>
