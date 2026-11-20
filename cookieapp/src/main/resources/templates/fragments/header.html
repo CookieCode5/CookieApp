@@ -22,6 +22,22 @@
                 </a>
             </li>
         </ul>
+        <!-- session.user is the PublicUser put in session by AuthController -->
+        <div class="flex items-center gap-4 text-sm font-semibold">
+            <th:block th:if="${session.user == null}">
+                <a th:href="@{/login}" class="opacity-80 hover:opacity-100">Connexion</a>
+                <a th:href="@{/register}" class="rounded-full bg-primary px-4 py-2 text-cream hover:opacity-90">Créer un compte</a>
+            </th:block>
+            <th:block th:unless="${session.user == null}">
+                <a th:if="${session.user.admin}" th:href="@{/admin}" class="opacity-80 hover:opacity-100">Admin</a>
+                <a th:href="@{/account}" class="opacity-80 hover:opacity-100">
+                    Mon espace
+                    <span th:if="${session.user.premium}" class="ml-1 rounded-full bg-accent px-2 py-0.5 text-xs text-dark">Premium</span>
+                </a>
+                <a th:href="@{/logout}" class="opacity-80 hover:opacity-100">Déconnexion</a>
+            </th:block>
+        </div>
     </nav>
+    <div th:replace="~{fragments/flash :: flash}"></div>
 </header>
 </html>

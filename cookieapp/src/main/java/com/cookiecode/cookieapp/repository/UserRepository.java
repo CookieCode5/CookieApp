@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 /** Provisoire : à fusionner avec celui d'Amina / Danika. */
-public interface UtilisateurRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    boolean existsByUsername(String username);
 }

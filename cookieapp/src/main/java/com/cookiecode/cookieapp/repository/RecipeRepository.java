@@ -7,13 +7,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface RecetteRepository extends JpaRepository<Recipe, Long> {
+public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
     /** Toutes les recettes, les plus récentes d'abord (auteur chargé pour éviter le N+1). */
-    @EntityGraph(attributePaths = "author")
-    List<Recipe> findAllByOrderByCreatedAtDesc();
+    @EntityGraph(attributePaths = "auteur")
+    List<Recipe> findAllByOrderByDateCreationDesc();
 
     /** Les N dernières recettes : on passe PageRequest.of(0, n). */
-    @EntityGraph(attributePaths = "author")
-    List<Recipe> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    @EntityGraph(attributePaths = "auteur")
+    List<Recipe> findAllByOrderByDateCreationDesc(Pageable pageable);
 }

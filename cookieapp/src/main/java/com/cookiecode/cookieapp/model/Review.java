@@ -25,13 +25,16 @@ public class Review {
     @Column 
     private LocalDate created_at;
 
-    // Clé secondaire
+    // Clés secondaires
     @ToString.Exclude
     @ManyToOne 
-    @JoinColumn(name = "auteur_id")
-    private User auteur;
+    @JoinColumn(name = "author_id")
+    private User author;
 
-    
+    @ToString.Exclude
+    @ManyToOne 
+    @JoinColumn(name = "recipe_id")
+    private Recipe recipe;
 
 
 }
