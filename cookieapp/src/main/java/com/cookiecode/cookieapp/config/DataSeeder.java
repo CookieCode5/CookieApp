@@ -313,13 +313,13 @@ public class DataSeeder implements CommandLineRunner {
     private Workshop workshop(User organizer, Recipe recipe, String title, LocalDateTime when,
                               String location, WorkshopType type, int seats) {
         Workshop w = new Workshop();
-        w.setOrganizer(organizer);
+        w.setUser(organizer);
         w.setRecipe(recipe);
         w.setTitle(title);
         w.setScheduledAt(when);
         w.setLocation(location);
         w.setType(type);
-        w.setMaxSeats(seats);
+        w.setMax_seats(seats);
         return w;
     }
 

@@ -1,5 +1,5 @@
 package com.cookiecode.cookieapp.model.enums;
 
-public enum Workshop {
+public enum WorkshopType {
     HOME, CLASS, RESTAURANT
 }
