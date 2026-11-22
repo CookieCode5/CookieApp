@@ -65,5 +65,4 @@ public class Recipe {
             .flatMap(ri -> ri.getIngredient().getAllergens().stream())
             .collect(Collectors.toSet());
     }
-    // getters / setters
 }

@@ -27,5 +27,4 @@ public class Step {
     private int durationMinutes;
     private String tip;
     private boolean parallelizable;
-    // getters / setters
 }

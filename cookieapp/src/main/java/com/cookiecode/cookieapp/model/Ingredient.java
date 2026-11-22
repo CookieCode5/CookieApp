@@ -37,5 +37,4 @@ public class Ingredient {
         joinColumns = @JoinColumn(name = "ingredient_id"),
         inverseJoinColumns = @JoinColumn(name = "allergen_id"))
     private Set<Allergen> allergens = new HashSet<>();
-    // getters / setters
 }

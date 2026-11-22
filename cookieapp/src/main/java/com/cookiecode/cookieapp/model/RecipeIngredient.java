@@ -34,5 +34,4 @@ public class RecipeIngredient {
     public double quantityFor(int servings) {
         return quantity * servings / recipe.getBaseServings();
     }
-    // getters / setters
 }
