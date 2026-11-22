@@ -8,7 +8,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -43,6 +45,8 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        seedUsers();
+
         if (recipes.count() > 0) return;   // already seeded
         User author = users.findAll().get(0);
 
@@ -317,5 +321,61 @@ public class DataSeeder implements CommandLineRunner {
         w.setType(type);
         w.setMaxSeats(seats);
         return w;
+    }
+
+    private void seedUsers(){
+        if (users.count() > 0) return;
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        createAccount(
+            "free@mail.com",
+            "FreeUser",
+            encoder.encode("FreePassword"),
+            Role.USER,
+            SubscriptionType.FREE,
+            Set.of("Gluten")
+        );
+
+        createAccount(
+            "premium@mail.com",
+            "PremiumUser",
+            encoder.encode("PremiumPassword"),
+            Role.USER,
+            SubscriptionType.PREMIUM,
+            Set.of("Lactose")
+        );
+
+        createAccount(
+            "admin@mail.com",
+            "AdminUser",
+            encoder.encode("AdminPassword"),
+            Role.ADMIN,
+            SubscriptionType.PREMIUM,
+            Set.of()
+        );
+    }
+
+    private void createAccount(String email, String username, String password_hash, Role role, SubscriptionType subType, Set<String> allergies){
+
+        User u = new User();
+        u.setEmail(email);
+        u.setUsername(username);
+        u.setPassword_hash(password_hash);
+        u.setRole(role);
+
+        for (String name : allergies) {
+            Allergen allergen = al.get(name);
+            if (allergen != null){
+                u.getAllergies().add(allergen);
+            }
+        }
+
+        User saved_users = users.save(u);
+
+        Subscription sub = new Subscription();
+        sub.setUser(saved_users);
+        
+
     }
 }

@@ -65,13 +65,13 @@ public class User {
     @ToString.Exclude
     private Set<Recipe> favorites = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(
+    @ManyToMany
+    @JoinTable (
         name = "user_allergen",
-        joinColumns = @JoinColumn(name = "user_id")
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "allergen_id")
     )
-    @Column(name = "allergen")
-    @Enumerated(EnumType.STRING)
+    @ToString.Exclude
     private Set<Allergen> allergies = new HashSet<>();
     
 }
