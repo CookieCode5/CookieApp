@@ -67,3 +67,6 @@ CLAUDE.md
 # Système
 .DS_Store
 Thumbs.db
+
+uploads/
+the_db_file*
