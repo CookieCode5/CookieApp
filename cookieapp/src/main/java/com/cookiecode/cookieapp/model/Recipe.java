@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,4 +66,8 @@ public class Recipe {
             .flatMap(ri -> ri.getIngredient().getAllergens().stream())
             .collect(Collectors.toSet());
     }
+
+    @ManyToMany(mappedBy = "favorites")
+    @ToString.Exclude
+    private Set<User> users = new HashSet<>();
 }
