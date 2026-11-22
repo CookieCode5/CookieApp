@@ -5,7 +5,7 @@ import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
 import com.cookiecode.cookieapp.model.User;
 import com.cookiecode.cookieapp.model.enums.Role;
-import com.cookiecode.cookieapp.repository.UtilisateurRepository;
+import com.cookiecode.cookieapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UtilisateurRepository userRepository;
+    private final UserRepository userRepository;
     private final SubscriptionService subscriptionService;
     private final PasswordEncoder passwordEncoder;
 
