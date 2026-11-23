@@ -304,25 +304,17 @@ public class DataSeeder implements CommandLineRunner {
     // ================= Workshops (2) =================
     private void seedWorkshops(User organizer) {
         List<Recipe> all = recipes.findAll();
-        workshops.save(workshop(organizer, all.get(6), "Homemade Croissant Workshop",
-                LocalDateTime.now().plusDays(10), "Bordeaux - Central Kitchen", WorkshopType.CLASS, 12));
-        workshops.save(workshop(organizer, all.get(3), "Seasonal Tarts Online",
-                LocalDateTime.now().plusDays(24), "At home (online)", WorkshopType.HOME, 20));
+        workshops.save(workshop(organizer, all.get(6), "Croissants à plusieurs"));
+        workshops.save(workshop(organizer, all.get(3), "Tarte aux fraises entre amis"));
     }
 
-    private Workshop workshop(User organizer, Recipe recipe, String title, LocalDateTime when,
-                              String location, WorkshopType type, int seats) {
+    private Workshop workshop(User organizer, Recipe recipe, String title) {
         Workshop w = new Workshop();
-        w.setUser(organizer);
+        w.setOrganizer(organizer);
         w.setRecipe(recipe);
         w.setTitle(title);
-        w.setScheduledAt(when);
-        w.setLocation(location);
-        w.setType(type);
-        w.setMax_seats(seats);
         return w;
     }
-
     private void seedUsers(){
         if (users.count() > 0) return;
 
