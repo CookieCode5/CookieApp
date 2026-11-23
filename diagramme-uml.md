@@ -144,11 +144,9 @@ class Workshop {
   recipe_id : BIGINT «FK»
   organizer_id : BIGINT «FK»
   title : VARCHAR
-  scheduled_at : TIMESTAMP
-  location : VARCHAR
-  type : VARCHAR «WorkshopType»
-  max_seats : INT
-  +remainingSeats() int
+  created_at : TIMESTAMP
+  +team() List~User~
+  +maxTeamSize() int
   +isFull() boolean
 }
 
@@ -211,12 +209,6 @@ class Aisle {
   PRODUCE
   FROZEN
 }
-class WorkshopType {
-  <<enumeration>>
-  HOME
-  CLASS
-  RESTAURANT
-}
 ```
 
 ### Méthodes métier des entités
@@ -229,7 +221,7 @@ class WorkshopType {
 | `totalTime()` | Recipe | `preparation_time + cooking_time`, calculé pour ne jamais être incohérent. |
 | `allergens()` | Recipe | Union des allergènes des ingrédients de la recette, pour avertir et filtrer. |
 | `quantityFor(servings)` | RecipeIngredient | `quantity × servings / recipe.base_servings` : ajustement des portions. |
-| `remainingSeats()`, `isFull()` | Workshop | `max_seats − participants.size()` ; plein quand il ne reste aucune place. |
+| `team()`, `isFull()` | Workshop | Organisateur + participants ; complet quand l'équipe a autant de membres que la recette a d'étapes. |
 | `toBase(quantity)` | Unit | Convertit en unité de base (g, ml ou pièce) : KG ×1000, CL ×10, L ×1000, TEASPOON = 5 ml, TABLESPOON = 15 ml. Sert au calcul du prix. |
 
 ### Relations et côté propriétaire
@@ -262,7 +254,8 @@ class WorkshopType {
 - **RG-F2** : score = lignes couvertes / lignes non optionnelles ; on garde score ≥ 0,7, sans allergène de l'utilisateur ni ustensile manquant non `common` ; tri par score puis coût du complément.
 - **RG-P1** : coût d'une ligne = `toBase(quantityFor(n)) × price_per_unit` (prix par unité de base de l'ingrédient) ; coût du complément = somme des lignes non couvertes.
 - **RG-S1** : `FREE` = 3 recherches Frigo par jour ; `PREMIUM` = illimité + recettes `premium`. Passage Premium simulé (pas de paiement).
-- **RG-W1** : inscription à un atelier refusée s'il est plein, passé, ou si l'utilisateur en est l'organisateur ; `max_seats` ≥ 1.
+- **RG-W1** : on ne rejoint pas son propre atelier ni deux fois le même ; l'équipe (organisateur + participants) ne dépasse pas le nombre d'étapes de la recette.
+- **RG-W2** : les étapes sont réparties dans l'ordre de la recette ; chaque étape va au membre le moins chargé (en minutes) ; les étapes `parallelizable` consécutives forment un bloc fait en même temps ; temps à plusieurs = somme des étapes en séquence + plus longue part de chaque bloc parallèle.
 
 ### Changements par rapport à la version de l'équipe
 
