@@ -77,6 +77,9 @@
         <textarea th:field="*{comment}" rows="3" class="w-full rounded-lg border-sand" placeholder="Votre avis…"></textarea>
         <button class="rounded-full bg-primary px-5 py-2 font-semibold text-cream">Publier</button>
     </form>
+    <p th:if="${session.user != null and !canReview}" class="mt-6 text-sm text-dark/60">
+      Vous êtes l'auteur de cette recette : vous ne pouvez pas la noter.
+    </p>
     <p th:if="${session.user == null}" class="mt-6 text-sm">
     <a th:href="@{/login}" class="text-primary underline">Connectez-vous</a> pour noter cette recette.
     </p>
@@ -88,9 +91,6 @@
             th:action="@{/recipes/{id}/reviews/{rid}/delete(id=${recipe.id}, rid=${rv.id})}" method="post">
         <button class="mt-2 text-xs text-dark/60 underline">Supprimer</button>
     </form>
-    <p th:if="${session.user != null and !canReview}" class="mt-6 text-sm text-dark/60">
-    Vous êtes l'auteur de cette recette : vous ne pouvez pas la noter.
-    </p>
     </article>
   </section>
 </main>
