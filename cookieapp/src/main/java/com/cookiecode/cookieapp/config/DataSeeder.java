@@ -66,7 +66,7 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    // ================= Ingredients (30) =================
+    // ================= Ingredients (32) =================
     private void i(String name, Unit u, String price, Aisle aisle, String... allergenNames) {
         Ingredient x = new Ingredient();
         x.setName(name);
@@ -95,6 +95,8 @@ public class DataSeeder implements CommandLineRunner {
         i("Sunflower oil",     Unit.ML,       "0.0030", Aisle.GROCERY);
         i("Cornstarch",        Unit.G,        "0.0030", Aisle.GROCERY);
         i("Gelatin",           Unit.G,        "0.0400", Aisle.GROCERY);
+        i("Coffee",            Unit.ML,       "0.0020", Aisle.GROCERY);
+        i("Ladyfingers",       Unit.PIECE,    "0.10",   Aisle.GROCERY, "Gluten", "Eggs");
         // FRESH
         i("Eggs",              Unit.PIECE,    "0.30",   Aisle.FRESH, "Eggs");
         i("Butter",            Unit.G,        "0.0100", Aisle.FRESH, "Milk");
@@ -114,11 +116,12 @@ public class DataSeeder implements CommandLineRunner {
         i("Frozen puff pastry", Unit.PIECE,   "1.80",   Aisle.FROZEN, "Gluten", "Milk");
     }
 
-    // ================= Utensils (8) =================
+    // ================= Utensils (10) =================
     private void seedUtensils() {
         Object[][] data = {
             {"Mixing bowl", true}, {"Whisk", true}, {"Oven", true}, {"Cake pan", true},
-            {"Tart pan", false}, {"Saucepan", true}, {"Spatula", true}, {"Stand mixer", false}
+            {"Tart pan", false}, {"Saucepan", true}, {"Spatula", true}, {"Stand mixer", false},
+            {"Crepe pan", true}, {"Madeleine pan", false}
         };
         for (Object[] d : data) {
             Utensil u = new Utensil();
@@ -174,7 +177,8 @@ public class DataSeeder implements CommandLineRunner {
         for (String n : names) r.getUtensils().add(ut.get(n));
     }
 
-    // ================= Recipes (8) =================
+    // ================= Recipes (11) =================
+    // Images live in static/images/recipes; recipes without one show the default card emoji
     private void seedRecipes(User a) {
 
         // 1. Cake
@@ -197,6 +201,7 @@ public class DataSeeder implements CommandLineRunner {
         // 2. Cookies
         Recipe r2 = recipe(a, "Chocolate Chip Cookies", "Crispy outside, soft and gooey inside.",
                 Difficulty.EASY, 12, 15, 12, true, false, false);
+        r2.setImageUrl("/images/recipes/chocolate-chip-cookies.jpeg");
         line(r2, "Flour", 250, Unit.G, false);
         line(r2, "Butter", 125, Unit.G, false);
         line(r2, "Brown sugar", 120, Unit.G, false);
@@ -212,6 +217,7 @@ public class DataSeeder implements CommandLineRunner {
         // 3. Apple tart
         Recipe r3 = recipe(a, "Apple Tart", "Rustic tart with thinly sliced apples.",
                 Difficulty.MEDIUM, 8, 20, 35, true, false, false);
+        r3.setImageUrl("/images/recipes/applepie.jpeg");
         line(r3, "Shortcrust dough", 1, Unit.PIECE, false);
         line(r3, "Apples", 5, Unit.PIECE, false);
         line(r3, "Sugar", 60, Unit.G, false);
@@ -240,6 +246,7 @@ public class DataSeeder implements CommandLineRunner {
         // 5. Brownie
         Recipe r5 = recipe(a, "Fudgy Brownie", "Intense chocolate flavour.",
                 Difficulty.EASY, 9, 15, 25, true, false, false);
+        r5.setImageUrl("/images/recipes/brownie-vegan.jpeg");
         line(r5, "Dark chocolate", 200, Unit.G, false);
         line(r5, "Butter", 150, Unit.G, false);
         line(r5, "Sugar", 150, Unit.G, false);
@@ -299,6 +306,58 @@ public class DataSeeder implements CommandLineRunner {
         step(r8, 4, "Set", "Pour into the mould and chill for 4 hours.", 240, "Make it the day before.", false);
         uses(r8, "Saucepan", "Whisk", "Mixing bowl", "Cake pan");
         recipes.save(r8);
+
+        // Recipes 9-11 come after the others: seedWorkshops picks recipes 4 and 7 by position
+
+        // 9. Tiramisu (steps 1 and 2 are parallelizable: a group really saves time)
+        Recipe r9 = recipe(a, "Tiramisu", "The Italian classic: mascarpone, coffee and cocoa.",
+                Difficulty.MEDIUM, 6, 30, 0, true, false, false);
+        r9.setImageUrl("/images/recipes/tiramisu.jpeg");
+        line(r9, "Mascarpone", 250, Unit.G, false);
+        line(r9, "Eggs", 3, Unit.PIECE, false);
+        line(r9, "Sugar", 80, Unit.G, false);
+        line(r9, "Ladyfingers", 24, Unit.PIECE, false);
+        line(r9, "Coffee", 300, Unit.ML, false);
+        line(r9, "Cocoa powder", 15, Unit.G, false);
+        step(r9, 1, "Coffee", "Brew the coffee and let it cool down.", 10, "Hot coffee makes the ladyfingers fall apart.", true);
+        step(r9, 2, "Cream", "Whisk yolks and sugar, add mascarpone, then fold in the beaten whites.", 15, "Beat the whites until stiff.", true);
+        step(r9, 3, "Layer", "Dip the ladyfingers in coffee, alternate with the cream.", 10, "Dip quickly: one second per side.", false);
+        step(r9, 4, "Chill", "Chill for 6 hours, dust with cocoa before serving.", 360, "Even better the next day.", false);
+        uses(r9, "Mixing bowl", "Whisk", "Spatula");
+        recipes.save(r9);
+
+        // 10. Crepes
+        Recipe r10 = recipe(a, "Homemade Crepes", "A light batter, ready in ten minutes.",
+                Difficulty.EASY, 4, 10, 20, true, false, false);
+        r10.setImageUrl("/images/recipes/crepe-housemade.jpeg");
+        line(r10, "Flour", 250, Unit.G, false);
+        line(r10, "Eggs", 4, Unit.PIECE, false);
+        line(r10, "Milk", 500, Unit.ML, false);
+        line(r10, "Butter", 50, Unit.G, false);
+        line(r10, "Sugar", 30, Unit.G, false);
+        line(r10, "Salt", 2, Unit.G, false);
+        step(r10, 1, "Batter", "Whisk flour, eggs and salt, then add the milk little by little.", 10, "Add the milk slowly to avoid lumps.", false);
+        step(r10, 2, "Rest", "Stir in the melted butter and let the batter rest.", 30, "Resting makes the crepes softer.", false);
+        step(r10, 3, "Cook", "Cook each crepe 1 minute per side in a hot buttered pan.", 20, "The first crepe is always a test.", false);
+        uses(r10, "Mixing bowl", "Whisk", "Crepe pan");
+        recipes.save(r10);
+
+        // 11. Madeleines
+        Recipe r11 = recipe(a, "Lemon Madeleines", "Small domed butter cakes with lemon zest.",
+                Difficulty.MEDIUM, 20, 15, 10, true, false, false);
+        r11.setImageUrl("/images/recipes/madeleine.jpeg");
+        line(r11, "Flour", 125, Unit.G, false);
+        line(r11, "Sugar", 100, Unit.G, false);
+        line(r11, "Eggs", 3, Unit.PIECE, false);
+        line(r11, "Butter", 100, Unit.G, false);
+        line(r11, "Baking powder", 5, Unit.G, false);
+        line(r11, "Lemon", 1, Unit.PIECE, false);
+        line(r11, "Honey", 20, Unit.G, true);
+        step(r11, 1, "Batter", "Whisk eggs and sugar, add flour, baking powder, melted butter and zest.", 10, "Do not overmix.", false);
+        step(r11, 2, "Rest", "Chill the batter for 1 hour.", 60, "The cold shock gives the famous bump.", false);
+        step(r11, 3, "Bake", "Fill the buttered moulds and bake 10 minutes at 200 °C.", 10, "Fill the moulds only three quarters.", false);
+        uses(r11, "Mixing bowl", "Whisk", "Madeleine pan", "Oven");
+        recipes.save(r11);
     }
 
     // ================= Workshops (2) =================
