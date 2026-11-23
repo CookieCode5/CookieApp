@@ -10,4 +10,5 @@ import java.util.List;
 public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findAllByOrderByCreatedAtDesc();
     Page<Recipe> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    List<Recipe> findByAuthorIdOrderByCreatedAtDesc(Long authorId);
 }

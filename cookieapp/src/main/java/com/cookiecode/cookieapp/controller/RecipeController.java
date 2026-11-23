@@ -51,6 +51,6 @@ public class RecipeController {
             });
         }
         model.addAttribute("reviewForm", form);
-        return "recipes/details";
+        return "recipes/detail";
     }
 }
