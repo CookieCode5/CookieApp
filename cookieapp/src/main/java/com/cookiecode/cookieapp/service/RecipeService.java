@@ -29,4 +29,8 @@ public class RecipeService {
     public long compter() {
         return RecipeRepository.count();
     }
+
+    public Recipe getById(Long id) {
+        return RecipeRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found"));
+    }
 }
