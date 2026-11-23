@@ -1,40 +1,27 @@
 package com.cookiecode.cookieapp.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.ToString;
+import lombok.Getter;
+import lombok.Setter;
 import jakarta.persistence.GenerationType;
 
+@Entity
+@Getter 
+@Setter 
 public class Review {
-
-    // Clé primaire
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column 
+    private Long id;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "recipe_id") private Recipe recipe;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "user_id") private User user;
     private int rating;
-
-    @Column 
-    private String comment;
-
-    @Column 
-    private LocalDate created_at;
-
-    // Clés secondaires
-    @ToString.Exclude
-    @ManyToOne 
-    @JoinColumn(name = "author_id")
-    private User author;
-
-    @ToString.Exclude
-    @ManyToOne 
-    @JoinColumn(name = "recipe_id")
-    private Recipe recipe;
-
-
+    @Column(columnDefinition = "TEXT") private String comment;
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

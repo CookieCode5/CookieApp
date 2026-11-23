@@ -5,7 +5,8 @@ import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
 import com.cookiecode.cookieapp.model.User;
 import com.cookiecode.cookieapp.model.enums.Role;
-import com.cookiecode.cookieapp.repository.UtilisateurRepository;
+import com.cookiecode.cookieapp.repository.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
     @Mock
-    private UtilisateurRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
     private SubscriptionService subscriptionService;

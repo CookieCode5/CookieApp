@@ -21,6 +21,6 @@ public class Allergen {
     private long id;
 
     @Column(unique = true)
-    private String nom;
+    private String name;
 
 }
