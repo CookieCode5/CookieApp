@@ -1,0 +1,42 @@
+meta {
+  name: Create Recipe
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8081/api/v1/recipes
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Cookies chocolat noisette",
+    "description": "Cookies moelleux au cœur et croustillants sur les bords.",
+    "authorId": 1,
+    "utensilIds": [1, 2],
+    "ingredients": [
+      {
+        "ingredientId": 1,
+        "quantity": 250,
+        "unit": "G",
+        "optional": false
+      }
+    ],
+    "steps": [
+      {
+        "stepOrder": 1,
+        "title": "Préparer la pâte",
+        "instruction": "Mélanger le beurre mou, le sucre, l'œuf, la farine et les pépites.",
+        "durationMinutes": 15,
+        "tip": "Utiliser du beurre à température ambiante.",
+        "parallelizable": false
+      }
+    ]
+  }
+}

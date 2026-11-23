@@ -1,0 +1,42 @@
+meta {
+  name: Update Recipe
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:8081/api/v1/recipes/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Cookies chocolat noisette (version améliorée)",
+    "description": "Recette mise à jour avec plus de noisettes torréfiées.",
+    "authorId": 1,
+    "utensilIds": [1],
+    "ingredients": [
+      {
+        "ingredientId": 1,
+        "quantity": 220,
+        "unit": "G",
+        "optional": false
+      }
+    ],
+    "steps": [
+      {
+        "stepOrder": 1,
+        "title": "Torréfier et mélanger",
+        "instruction": "Torréfier les noisettes puis incorporer tous les ingrédients.",
+        "durationMinutes": 20,
+        "tip": "Surveiller la coloration des noisettes.",
+        "parallelizable": false
+      }
+    ]
+  }
+}
