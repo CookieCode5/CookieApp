@@ -5,7 +5,7 @@
 
 <header th:replace="~{fragments/header :: header('accueil')}"></header>
 
-<main>
+<main class="pb-16">
     <section class="bg-sand">
         <div class="mx-auto max-w-6xl px-6 py-16">
             <h1 class="max-w-2xl text-4xl font-extrabold leading-tight md:text-5xl">
@@ -14,24 +14,48 @@
             <p class="mt-4 max-w-xl text-lg text-dark/80">
                 Découvrez les recettes de la communauté CookieApp.
             </p>
-            <a th:href="@{/recettes}"
+            <a th:href="@{/recipes}"
                class="mt-8 inline-block rounded-full bg-primary px-6 py-3 font-semibold text-sand hover:opacity-90">
                 Voir toutes les recettes
             </a>
         </div>
     </section>
 
+    <!-- Top of the week: best rated recipes on the last 7 days reviews (hidden when there is no review) -->
+    <section th:unless="${#lists.isEmpty(topRecipes)}" class="mx-auto max-w-6xl px-6 pt-12">
+        <h2 class="text-2xl font-bold">Top de la semaine</h2>
+        <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <th:block th:each="r : ${topRecipes}">
+                <div th:replace="~{fragments/recipe-card :: carte(${r})}"></div>
+            </th:block>
+        </div>
+    </section>
+
     <section class="mx-auto max-w-6xl px-6 pt-12">
         <div class="flex items-end justify-between">
             <h2 class="text-2xl font-bold">Dernières recettes</h2>
-            <a th:if="${nbRecettes > 0}" th:href="@{/recettes}"
+            <a th:if="${nbRecettes > 0}" th:href="@{/recipes}"
                class="text-sm font-semibold text-primary hover:underline">
                 Tout voir (<span th:text="${nbRecettes}">6</span>)
             </a>
         </div>
 
+        <!-- Filters handled by RecipeService.dernieres(n, filter) -->
+        <nav class="mt-6 flex flex-wrap gap-2 text-sm font-semibold">
+            <a th:href="@{/}" class="rounded-full px-4 py-1"
+               th:classappend="${filter == null} ? 'bg-primary text-cream' : 'bg-white'">Toutes</a>
+            <a th:href="@{/(filter='vegetarian')}" class="rounded-full px-4 py-1"
+               th:classappend="${filter == 'vegetarian'} ? 'bg-primary text-cream' : 'bg-white'">🥕 Végétarien</a>
+            <a th:href="@{/(filter='express')}" class="rounded-full px-4 py-1"
+               th:classappend="${filter == 'express'} ? 'bg-primary text-cream' : 'bg-white'">⚡ Express</a>
+            <!--/* Enable once AmiraO's PriceService.costPerServing exists
+            <a th:href="@{/(filter='budget')}" class="rounded-full px-4 py-1"
+               th:classappend="${filter == 'budget'} ? 'bg-primary text-cream' : 'bg-white'">💶 ≤ 3 €/pers.</a>
+            */-->
+        </nav>
+
         <p th:if="${#lists.isEmpty(recettes)}" class="mt-8 rounded-2xl bg-white p-8 text-center text-dark/70">
-            Aucune recette pour le moment.
+            Aucune recette ne correspond à ce filtre.
         </p>
 
         <div th:unless="${#lists.isEmpty(recettes)}"
@@ -41,16 +65,6 @@
             </th:block>
         </div>
     </section>
-    <nav class="mt-6 flex flex-wrap gap-2 text-sm">
-        <a th:href="@{/}" class="rounded-full px-4 py-1"
-            th:classappend="${filter == null} ? 'bg-primary text-cream' : 'bg-sand'">Toutes</a>
-        <a th:href="@{/(filter='vegetarian')}" class="rounded-full px-4 py-1"
-            th:classappend="${filter == 'vegetarian'} ? 'bg-primary text-cream' : 'bg-sand'">🥕 Végétarien</a>
-        <a th:href="@{/(filter='express')}" class="rounded-full px-4 py-1"
-            th:classappend="${filter == 'express'} ? 'bg-primary text-cream' : 'bg-sand'">⚡ Express</a>
-        <a th:href="@{/(filter='budget')}" class="rounded-full px-4 py-1"
-            th:classappend="${filter == 'budget'} ? 'bg-primary text-cream' : 'bg-sand'">💶 ≤ 3 €/pers.</a>
-    </nav>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
