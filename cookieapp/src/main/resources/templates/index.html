@@ -41,6 +41,16 @@
             </th:block>
         </div>
     </section>
+    <nav class="mt-6 flex flex-wrap gap-2 text-sm">
+        <a th:href="@{/}" class="rounded-full px-4 py-1"
+            th:classappend="${filter == null} ? 'bg-primary text-cream' : 'bg-sand'">Toutes</a>
+        <a th:href="@{/(filter='vegetarian')}" class="rounded-full px-4 py-1"
+            th:classappend="${filter == 'vegetarian'} ? 'bg-primary text-cream' : 'bg-sand'">🥕 Végétarien</a>
+        <a th:href="@{/(filter='express')}" class="rounded-full px-4 py-1"
+            th:classappend="${filter == 'express'} ? 'bg-primary text-cream' : 'bg-sand'">⚡ Express</a>
+        <a th:href="@{/(filter='budget')}" class="rounded-full px-4 py-1"
+            th:classappend="${filter == 'budget'} ? 'bg-primary text-cream' : 'bg-sand'">💶 ≤ 3 €/pers.</a>
+    </nav>
 </main>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>

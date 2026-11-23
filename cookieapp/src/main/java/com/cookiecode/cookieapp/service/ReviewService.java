@@ -8,6 +8,7 @@ import com.cookiecode.cookieapp.repository.RecipeRepository;
 import com.cookiecode.cookieapp.repository.ReviewRepository;
 import com.cookiecode.cookieapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,9 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,5 +96,13 @@ public class ReviewService {
             stars.put((Integer) row[0], (Long) row[1]);
         }
         return stars;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Recipe> topOfTheWeek(int n) {
+        List<Long> ids = reviewRepository.topRecipeIdsSince(LocalDateTime.now().minusDays(7), PageRequest.of(0, n));
+        Map<Long, Recipe> byId = recipeRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Recipe::getId, r -> r));
+        return ids.stream().map(byId::get).filter(Objects::nonNull).toList(); // keep the ranking order
     }
 }

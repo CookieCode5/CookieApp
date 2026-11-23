@@ -24,8 +24,17 @@ public class RecipeService {
         return RecipeRepository.findAllByOrderByCreatedAtDesc();
     }
 
-    public List<Recipe> dernieres(int n) {
-        return RecipeRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, n)).getContent();
+    public List<Recipe> dernieres(int n, String filter) {
+        String f = filter == null ? "" : filter;
+        return RecipeRepository.findAllByOrderByCreatedAtDesc().stream()
+                .filter(r -> switch (f) {
+                    case "vegetarian" -> r.isVegetarian();
+                    case "express" -> r.totalTime() <= EXPRESS_MAX_MINUTES;
+                    // case "budget" -> priceService.costPerServing(r) <= 3  → once AmiraO's PriceService exists
+                    default -> true;
+                })
+                .limit(n)
+                .toList();
     }
 
     public long compter() {
@@ -35,4 +44,8 @@ public class RecipeService {
     public Recipe getById(Long id) {
         return RecipeRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found"));
     }
+
+    private static final int EXPRESS_MAX_MINUTES = 20; // to decide with the team: no seeded recipe is ≤ 20 min
+
+
 }
