@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Page introuvable')}"></head>
+<body class="flex min-h-screen flex-col bg-cream font-sans text-dark">
+<header th:replace="~{fragments/header :: header('')}"></header>
+<main class="mx-auto flex flex-1 flex-col items-center justify-center px-4 text-center">
+    <p class="text-7xl">🍪</p>
+    <h1 class="mt-4 text-4xl font-extrabold">Cette page n'est pas fournie</h1>
+    <p class="mt-2 text-dark/70">Erreur 500 interne survenue (Internal Server Error)</p>
+    <a th:href="@{/}" class="mt-6 rounded-full bg-primary px-6 py-3 font-semibold text-cream">Retour à l'accueil</a>
+</main>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>
