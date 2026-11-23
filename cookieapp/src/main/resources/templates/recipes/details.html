@@ -53,7 +53,45 @@
     </ol>
   </section>
 
-  <section id="reviews"><!-- Steps 3 and 4 --></section>
+  <section id="reviews">
+    <h2 class="text-2xl font-bold">Avis</h2>
+    <div class="mt-4 grid gap-6 md:grid-cols-3">
+        <div class="text-center">
+            <p class="text-5xl font-extrabold" th:text="${#numbers.formatDecimal(recipe.averageRating, 1, 1)}">4,5</p>
+            <p class="text-sm text-dark/60"><span th:text="${recipe.reviewCount}"></span> avis</p>
+        </div>
+        <div class="space-y-1 md:col-span-2">
+            <div th:each="e : ${stars}" class="flex items-center gap-2 text-sm">
+            <span class="w-10" th:text="${e.key} + ' ★'"></span>
+            <div class="h-2 flex-1 rounded bg-sand">
+                <div class="h-2 rounded bg-primary"
+                    th:style="|width: ${recipe.reviewCount == 0 ? 0 : e.value * 100 / recipe.reviewCount}%|"></div>
+            </div>
+            <span class="w-6 text-right" th:text="${e.value}"></span>
+            </div>
+        </div>
+    </div>
+
+    <form th:if="${canReview}" th:action="@{/recipes/{id}/reviews(id=${recipe.id})}" th:object="${reviewForm}"method="post" class="mt-6 space-y-3 rounded-2xl bg-white p-5 shadow-sm">
+        <select th:field="*{rating}" class="rounded-lg border-sand">
+            <option th:each="n : ${#numbers.sequence(5, 1)}" th:value="${n}" th:text="${n} + ' ★'"></option>
+        </select>
+        <textarea th:field="*{comment}" rows="3" class="w-full rounded-lg border-sand" placeholder="Votre avis…"></textarea>
+        <button class="rounded-full bg-primary px-5 py-2 font-semibold text-cream">Publier</button>
+    </form>
+    <p th:if="${session.user == null}" class="mt-6 text-sm">
+    <a th:href="@{/login}" class="text-primary underline">Connectez-vous</a> pour noter cette recette.
+    </p>
+
+    <article th:each="rv : ${reviews}" class="mt-4 rounded-2xl bg-white p-5 shadow-sm">
+    <p class="font-semibold"><span th:text="${rv.user.username}"></span> · <span th:text="${rv.rating} + ' ★'"></span></p>
+    <p class="mt-1" th:text="${rv.comment}"></p>
+    <form th:if="${session.user != null and (session.user.id == rv.user.id or session.user.admin)}"
+            th:action="@{/recipes/{id}/reviews/{rid}/delete(id=${recipe.id}, rid=${rv.id})}" method="post">
+        <button class="mt-2 text-xs text-dark/60 underline">Supprimer</button>
+    </form>
+    </article>
+  </section>
 </main>
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 </body>

@@ -27,6 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/workshops/new",
                         "/workshops/*/join",
                         "/workshops/*/leave",
+                        "/recipes/*/reviews/**",
                         "/admin/**");
     }
 }

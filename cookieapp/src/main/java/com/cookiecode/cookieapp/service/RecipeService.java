@@ -3,8 +3,10 @@ package com.cookiecode.cookieapp.service;
 import com.cookiecode.cookieapp.model.Recipe;
 import com.cookiecode.cookieapp.repository.RecipeRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 

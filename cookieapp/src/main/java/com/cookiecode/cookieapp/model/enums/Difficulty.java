@@ -1,3 +1,5 @@
+package com.cookiecode.cookieapp.model.enums;
+
 public enum Difficulty {
     EASY("Facile"), MEDIUM("Moyen"), HARD("Difficile");
 
