@@ -50,6 +50,10 @@
         <p th:if="${s.tip}" class="mt-2 text-sm text-primary">💡 <span th:text="${s.tip}"></span></p>
       </li>
     </ol>
+    <a th:href="@{/workshops/new(recipeId=${recipe.id})}"
+      class="mt-4 inline-block rounded-full bg-primary px-5 py-2 text-sm font-semibold text-cream hover:opacity-90">
+        👩‍🍳 Cuisiner à plusieurs
+    </a>
   </section>
 
   <section id="reviews">

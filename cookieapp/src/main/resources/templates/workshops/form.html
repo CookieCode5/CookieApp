@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Créer un atelier')}"></head>
+<body class="bg-sand font-sans text-dark">
+
+<header th:replace="~{fragments/header :: header('ateliers')}"></header>
+
+<main class="mx-auto max-w-2xl px-6 py-12">
+    <a th:href="@{/workshops}" class="text-sm text-primary hover:underline">← Retour aux ateliers</a>
+    <h1 class="mt-2 text-3xl font-extrabold">Créer un atelier</h1>
+    <p class="mt-2 text-dark/70">Choisissez une recette : les étapes seront réparties entre vous et ceux qui vous rejoignent.</p>
+
+    <form th:action="@{/workshops/new}" th:object="${workshopForm}" method="post"
+          class="mt-8 space-y-5 rounded-2xl bg-white p-6 shadow-sm">
+
+        <div>
+            <label for="recipeId" class="block text-sm font-semibold">Recette</label>
+            <select th:field="*{recipeId}" class="mt-1 w-full rounded-lg border-sand">
+                <option value="">Choisir une recette…</option>
+                <option th:each="r : ${recipes}" th:value="${r.id}"
+                        th:text="${r.title} + ' (' + ${#lists.size(r.steps)} + ' étapes)'"></option>
+            </select>
+            <p th:if="${#fields.hasErrors('recipeId')}" th:errors="*{recipeId}" class="mt-1 text-sm text-red-700"></p>
+        </div>
+
+        <div>
+            <label for="title" class="block text-sm font-semibold">Nom de l'atelier</label>
+            <input type="text" th:field="*{title}" class="mt-1 w-full rounded-lg border-sand"
+                   placeholder="Ex. : Croissants du dimanche en famille">
+            <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="mt-1 text-sm text-red-700"></p>
+        </div>
+
+        <button class="w-full rounded-full bg-primary px-6 py-3 font-semibold text-cream hover:opacity-90">
+            Créer l'atelier
+        </button>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

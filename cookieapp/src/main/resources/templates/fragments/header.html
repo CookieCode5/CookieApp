@@ -21,6 +21,12 @@
                     Recettes
                 </a>
             </li>
+            <li>
+                <a th:href="@{/workshops}"
+                th:classappend="${actif == 'ateliers'} ? 'border-b-2 border-accent pb-1' : 'opacity-80 hover:opacity-100'">
+                    Ateliers
+                </a>
+            </li>
         </ul>
         <!-- session.user is the PublicUser put in session by AuthController -->
         <div class="flex items-center gap-4 text-sm font-semibold">
