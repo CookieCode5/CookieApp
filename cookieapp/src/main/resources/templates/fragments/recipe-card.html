@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<span th:if="${r.reviewCount > 0}">★ 
-<span th:text="${#numbers.formatDecimal(r.averageRating, 1, 1)}"></span>
-(<span th:text="${r.reviewCount}"></span>)</span>
-<!-- Carte d'une recette (lecture seule). Utilisation : th:replace="~{fragments/recette-card :: carte(${r})}"
-     Quand la fiche recette de Nylan existe (/recettes/{id}), envelopper la carte dans
-     <a th:href="@{/recettes/{id}(id=${r.id})}">. -->
+<!-- Recipe card, links to /recipes/{id}. Usage: th:replace="~{fragments/recipe-card :: carte(${r})}" -->
 <a th:fragment="carte(r)" th:href="@{/recipes/{id}(id=${r.id})}" class="block transition hover:-translate-y-1">
     <article class="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-sand">
         <div class="relative h-44 bg-sand">
@@ -27,6 +22,9 @@
                 <span th:if="${r.difficulty != null}" th:text="${r.difficulty.libelle}">Facile</span>
                 <span th:if="${r.vegan}">🌱 Vegan</span>
                 <span th:if="${r.vegetarian and !r.vegan}">🥕 Végétarien</span>
+                <span th:if="${r.reviewCount > 0}">★ 
+                <span th:text="${#numbers.formatDecimal(r.averageRating, 1, 1)}"></span>
+                (<span th:text="${r.reviewCount}"></span>)</span>
             </div>
             <p class="text-xs text-dark/60" th:if="${r.author != null}">
                 par <span class="font-semibold" th:text="${r.author.username}">Auteur</span>

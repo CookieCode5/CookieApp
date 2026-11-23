@@ -72,7 +72,7 @@
         </div>
     </div>
 
-    <form th:if="${canReview}" th:action="@{/recipes/{id}/reviews(id=${recipe.id})}" th:object="${reviewForm}"method="post" class="mt-6 space-y-3 rounded-2xl bg-white p-5 shadow-sm">
+    <form th:if="${canReview}" th:action="@{/recipes/{id}/reviews(id=${recipe.id})}" th:object="${reviewForm} "method="post" class="mt-6 space-y-3 rounded-2xl bg-white p-5 shadow-sm">
         <select th:field="*{rating}" class="rounded-lg border-sand">
             <option th:each="n : ${#numbers.sequence(5, 1)}" th:value="${n}" th:text="${n} + ' ★'"></option>
         </select>
