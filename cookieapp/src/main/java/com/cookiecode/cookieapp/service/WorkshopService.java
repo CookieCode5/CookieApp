@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,15 +33,32 @@ public class WorkshopService {
     private final RecipeRepository recipeRepository;
     private final UserRepository userRepository;
 
+    // RG-W3: a user only sees the groups they belong to
     @Transactional(readOnly = true)
-    public List<Workshop> all() {
-        return workshopRepository.findAllByOrderByCreatedAtDesc();
+    public List<Workshop> mine(Long userId) {
+        return workshopRepository.findByMember(userId);
     }
 
     @Transactional(readOnly = true)
     public Workshop get(Long id) {
         return workshopRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workshop not found"));
+    }
+
+    // RG-W3: a private group answers 404 to non-members, so its existence is not revealed
+    @Transactional(readOnly = true)
+    public Workshop getForMember(Long id, Long userId) {
+        Workshop w = get(id);
+        if (!isMember(w, userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Workshop not found");
+        }
+        return w;
+    }
+
+    @Transactional(readOnly = true)
+    public Workshop getByInvite(String inviteCode) {
+        return workshopRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invitation not found"));
     }
 
     @Transactional
@@ -56,10 +71,10 @@ public class WorkshopService {
         return workshopRepository.save(w);
     }
 
-    // RG-W1: not your own group, not twice, and no more cooks than steps
+    // RG-W1: not your own group, not twice, and no more cooks than steps. RG-W3: only through the invitation link
     @Transactional
-    public void join(Long workshopId, Long userId) {
-        Workshop w = get(workshopId);
+    public Workshop join(String inviteCode, Long userId) {
+        Workshop w = getByInvite(inviteCode);
         if (w.getOrganizer().getId() == userId) {
             throw new BusinessException("Vous organisez cet atelier : vous en faites déjà partie.");
         }
@@ -72,6 +87,17 @@ public class WorkshopService {
         }
         w.getParticipants().add(userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)));
+        return w;
+    }
+
+    // Only the organizer can delete the group; the workshop_participant rows go with it
+    @Transactional
+    public void delete(Long workshopId, Long userId) {
+        Workshop w = get(workshopId);
+        if (w.getOrganizer().getId() != userId) {
+            throw new BusinessException("Seul l'organisateur peut supprimer cet atelier.");
+        }
+        workshopRepository.delete(w);
     }
 
     @Transactional
@@ -83,6 +109,10 @@ public class WorkshopService {
 
     public boolean isParticipant(Workshop w, Long userId) {
         return w.getParticipants().stream().anyMatch(p -> p.getId() == userId);
+    }
+
+    public boolean isMember(Workshop w, Long userId) {
+        return w.getOrganizer().getId() == userId || isParticipant(w, userId);
     }
 
     /**
@@ -131,15 +161,6 @@ public class WorkshopService {
                 .map(cook -> new CookTasks(cook, tasks.get(cook), load.get(cook)))
                 .toList();
         return new CookingPlan(cooks, solo, group);
-    }
-
-    // Ids of the groups the user belongs to (organizer or participant), for the list page
-    @Transactional(readOnly = true)
-    public Set<Long> myWorkshopIds(Long userId) {
-        return all().stream()
-                .filter(w -> w.getOrganizer().getId() == userId || isParticipant(w, userId))
-                .map(Workshop::getId)
-                .collect(Collectors.toSet());
     }
 
     // Least busy cook: least minutes in the current parallel block, then least minutes overall, then team order

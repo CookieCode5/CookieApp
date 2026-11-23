@@ -24,9 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/recipes/*/delete",
                         "/recipes/*/reviews",
                         "/recipes/*/favorite",
-                        "/workshops/new",
-                        "/workshops/*/join",
-                        "/workshops/*/leave",
+                        "/workshops",
+                        "/workshops/**",
                         "/recipes/*/reviews/**",
                         "/admin/**");
     }

@@ -1,7 +1,5 @@
 package com.cookiecode.cookieapp.controller;
 
-import java.util.Set;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.WorkshopForm;
@@ -30,11 +29,10 @@ public class WorkshopController {
     private final WorkshopService workshopService;
     private final RecipeService recipeService;
 
+    // Every /workshops page needs a logged-in user (LoginInterceptor), so currentUser is never null here
     @GetMapping("/workshops")
     public String list(Model model, HttpSession session) {
-        PublicUser me = currentUser(session);
-        model.addAttribute("workshops", workshopService.all());
-        model.addAttribute("myIds", me == null ? Set.of() : workshopService.myWorkshopIds(me.getId()));
+        model.addAttribute("workshops", workshopService.mine(currentUser(session).getId()));
         return "workshops/list";
     }
 
@@ -66,24 +64,50 @@ public class WorkshopController {
 
     @GetMapping("/workshops/{id}")
     public String detail(@PathVariable Long id, Model model, HttpSession session) {
-        Workshop w = workshopService.get(id);
-        PublicUser me = currentUser(session);
-        model.addAttribute("workshop", w);
-        model.addAttribute("plan", workshopService.plan(w));
-        model.addAttribute("isOrganizer", me != null && w.getOrganizer().getId() == me.getId());
-        model.addAttribute("isParticipant", me != null && workshopService.isParticipant(w, me.getId()));
+        Workshop w = workshopService.getForMember(id, currentUser(session).getId());
+        fillDetail(w, model, session);
+        if (w.getOrganizer().getId() == currentUser(session).getId()) {
+            model.addAttribute("inviteLink", ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/workshops/join/{code}").buildAndExpand(w.getInviteCode()).toUriString());
+        }
         return "workshops/detail";
     }
 
-    @PostMapping("/workshops/{id}/join")
-    public String join(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
+    // Invitation link: a member goes straight to the group, anyone else sees it with a "join" button.
+    // A GET never joins, so a link preview in a chat app cannot add someone by accident.
+    @GetMapping("/workshops/join/{code}")
+    public String invitation(@PathVariable String code, Model model, HttpSession session) {
+        Workshop w = workshopService.getByInvite(code);
+        if (workshopService.isMember(w, currentUser(session).getId())) {
+            return "redirect:/workshops/" + w.getId();
+        }
+        fillDetail(w, model, session);
+        model.addAttribute("invited", true);
+        return "workshops/detail";
+    }
+
+    @PostMapping("/workshops/join/{code}")
+    public String join(@PathVariable String code, HttpSession session, RedirectAttributes redirect) {
         try {
-            workshopService.join(id, currentUser(session).getId());
+            Workshop w = workshopService.join(code, currentUser(session).getId());
             redirect.addFlashAttribute("success", "Vous avez rejoint l'équipe : les étapes ont été réparties à nouveau.");
+            return "redirect:/workshops/" + w.getId();
         } catch (BusinessException e) {
             redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/workshops/join/" + code;
         }
-        return "redirect:/workshops/" + id;
+    }
+
+    @PostMapping("/workshops/{id}/delete")
+    public String delete(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
+        try {
+            workshopService.delete(id, currentUser(session).getId());
+            redirect.addFlashAttribute("success", "L'atelier a été supprimé.");
+            return "redirect:/workshops";
+        } catch (BusinessException e) {
+            redirect.addFlashAttribute("error", e.getMessage());
+            return "redirect:/workshops/" + id;
+        }
     }
 
     @PostMapping("/workshops/{id}/leave")
@@ -94,7 +118,16 @@ public class WorkshopController {
         } catch (BusinessException e) {
             redirect.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/workshops/" + id;
+        // Not a member any more: the group page would now answer 404
+        return "redirect:/workshops";
+    }
+
+    private void fillDetail(Workshop w, Model model, HttpSession session) {
+        Long me = currentUser(session).getId();
+        model.addAttribute("workshop", w);
+        model.addAttribute("plan", workshopService.plan(w));
+        model.addAttribute("isOrganizer", w.getOrganizer().getId() == me);
+        model.addAttribute("isParticipant", workshopService.isParticipant(w, me));
     }
 
     private static PublicUser currentUser(HttpSession session) {

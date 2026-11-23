@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,6 +38,10 @@ public class Workshop {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // RG-W3: secret code of the invitation link, the only way to join a group
+    @Column(name = "invite_code", unique = true, updatable = false)
+    private String inviteCode = UUID.randomUUID().toString();
 
     @ManyToOne
     @JoinColumn(name = "recipe_id")

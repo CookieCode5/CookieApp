@@ -14,7 +14,7 @@ GitHub affiche les schémas directement ; pour modifier avec aperçu, collez un 
 | 6 | Créer une recette (1-N et N-N) | Séquence |
 | 7 | Frigo Magique | Séquence |
 | 8 | Noter et commenter une recette | Séquence |
-| 9 | S'inscrire à un atelier | Séquence |
+| 9 | Rejoindre un atelier par son lien d'invitation | Séquence |
 | 10 | API REST depuis Bruno | Séquence |
 
 ## Notation
@@ -145,6 +145,7 @@ class Workshop {
   organizer_id : BIGINT «FK»
   title : VARCHAR
   created_at : TIMESTAMP
+  invite_code : VARCHAR «UQ»
   +team() List~User~
   +maxTeamSize() int
   +isFull() boolean
@@ -240,7 +241,7 @@ class Aisle {
 | N-N | User ↔ Allergen (`allergies`) | `user_allergen` | Mon espace : mes allergies |
 | N-N | Ingredient ↔ Allergen (`allergens`) | `ingredient_allergen` | Admin : fiche ingrédient |
 | N-N | User ↔ Recipe (`favorites`) | `favorite` | Bouton cœur |
-| N-N | Workshop ↔ User (`participants`) | `workshop_participant` | S'inscrire / se désinscrire |
+| N-N | Workshop ↔ User (`participants`) | `workshop_participant` | Rejoindre par le lien d'invitation / quitter l'équipe |
 
 `RecipeIngredient` et `PantryItem` relient deux entités comme un N-N mais portent des données (quantité, unité) : ce sont des entités avec deux `@ManyToOne`, pas des `@ManyToMany`. Pour la grille, les vrais `@ManyToMany` sont les six de la fin du tableau.
 
@@ -256,6 +257,7 @@ class Aisle {
 - **RG-S1** : `FREE` = 3 recherches Frigo par jour ; `PREMIUM` = illimité + recettes `premium`. Passage Premium simulé (pas de paiement).
 - **RG-W1** : on ne rejoint pas son propre atelier ni deux fois le même ; l'équipe (organisateur + participants) ne dépasse pas le nombre d'étapes de la recette.
 - **RG-W2** : les étapes sont réparties dans l'ordre de la recette ; chaque étape va au membre le moins chargé (en minutes) ; les étapes `parallelizable` consécutives forment un bloc fait en même temps ; temps à plusieurs = somme des étapes en séquence + plus longue part de chaque bloc parallèle.
+- **RG-W3** : un atelier est privé : seuls ses membres (organisateur + participants) le voient, les autres reçoivent une 404. On ne le rejoint que par son lien d'invitation (`invite_code`, UUID aléatoire), que seul l'organisateur voit et partage. Seul l'organisateur peut supprimer l'atelier.
 
 ### Changements par rapport à la version de l'équipe
 
@@ -268,7 +270,7 @@ class Aisle {
 | Pas de régime sur `Recette` | `vegetarian`, `vegan` | Filtres « Végétarien » et « Régime » de la maquette (accueil, liste, Frigo) |
 | `Etape` sans titre ni astuce | `title`, `tip` ajoutés | La fiche recette de la maquette affiche un titre et une « Astuce du Chef » par étape |
 | `StockIngredient` | `PantryItem` (même contenu, `quantity`, `unit` et `expiration_date` facultatifs) | Nom anglais ; l'écran Frigo coche des ingrédients sans quantité |
-| `Avis.date`, `Atelier.date` | `created_at`, `scheduled_at` | `date` est un nom de type SQL, source d'erreurs |
+| `Avis.date`, `Atelier.date` | `created_at` | `date` est un nom de type SQL, source d'erreurs |
 | Liens sans libellé | Libellés `author`, `favorites`, `participants`… | Deux liens User–Recipe et deux liens User–Workshop étaient indiscernables |
 | `Unite` sur la ligne et sur l'ingrédient, sans conversion | `Unit.toBase()` | Nécessaire au calcul du prix quand la recette dit « 200 G » et l'ingrédient est vendu au « KG » |
 
@@ -322,10 +324,13 @@ classDiagram
         +missingCost(Recipe, List~PantryItem~ pantry, int servings) BigDecimal
     }
     class WorkshopService {
-        +create(WorkshopForm, User organizer) Workshop
-        +join(Long workshopId, User)
-        +leave(Long workshopId, User)
-        +upcoming() List~Workshop~
+        +create(WorkshopForm, Long organizerId) Workshop
+        +mine(Long userId) List~Workshop~
+        +getForMember(Long workshopId, Long userId) Workshop
+        +join(String inviteCode, Long userId) Workshop
+        +leave(Long workshopId, Long userId)
+        +delete(Long workshopId, Long userId)
+        +plan(Workshop) CookingPlan
     }
 
     class RegisterDTO {
@@ -433,8 +438,10 @@ classDiagram
     class WorkshopController {
         +GET /workshops
         +GET/POST /workshops/new
-        +POST /workshops/id/join
+        +GET /workshops/id
+        +GET/POST /workshops/join/code
         +POST /workshops/id/leave
+        +POST /workshops/id/delete
     }
     class AdminController {
         +GET/POST /admin/ingredients
@@ -486,7 +493,8 @@ classDiagram
     }
     class WorkshopRepository {
         <<JpaRepository>>
-        +findByScheduledAtAfterOrderByScheduledAt(LocalDateTime) List~Workshop~
+        +findByMember(Long userId) List~Workshop~
+        +findByInviteCode(String) Optional~Workshop~
     }
     class IngredientRepository {
         <<JpaRepository>>
@@ -536,7 +544,7 @@ classDiagram
     WorkshopService --> WorkshopRepository
 ```
 
-Chaque controller renvoie une vue Thymeleaf (sauf `RecipeApiController`, qui renvoie du JSON). `LoginInterceptor` protège `/fridge`, `/account/**`, `/offers/**`, `/recipes/new`, `/recipes/*/edit`, `/workshops/new`, `/workshops/*/join`, `/admin/**` (rôle `ADMIN`).
+Chaque controller renvoie une vue Thymeleaf (sauf `RecipeApiController`, qui renvoie du JSON). `LoginInterceptor` protège `/fridge`, `/account/**`, `/offers/**`, `/recipes/new`, `/recipes/*/edit`, `/workshops` et `/workshops/**`, `/admin/**` (rôle `ADMIN`).
 
 ## 4. Séquence « Inscription »
 
@@ -707,7 +715,7 @@ sequenceDiagram
     C-->>U: redirect:/recipes/{id} + message flash
 ```
 
-## 9. Séquence « S'inscrire à un atelier »
+## 9. Séquence « Rejoindre un atelier par son lien d'invitation »
 
 ```mermaid
 sequenceDiagram
@@ -716,18 +724,23 @@ sequenceDiagram
     participant WS as WorkshopService
     participant WR as WorkshopRepository
 
-    U->>C: POST /workshops/{id}/join
-    C->>WS: join(id, user)
-    WS->>WR: findById(id)
-    WR-->>WS: Workshop
-    alt atelier passé, plein ou organisé par l'utilisateur (RG-W1)
-        WS-->>C: BusinessException
-        C-->>U: redirect:/workshops + message d'erreur
-    else places disponibles
-        WS->>WS: workshop.getParticipants().add(user) (N-N)
-        WS->>WR: save(workshop)
-        WS-->>C: ok
-        C-->>U: redirect:/workshops + « Inscription confirmée »
+    U->>C: POST /workshops/join/{code}
+    C->>WS: join(code, userId)
+    WS->>WR: findByInviteCode(code)
+    alt code inconnu (RG-W3)
+        WR-->>WS: vide
+        WS-->>C: 404
+        C-->>U: page 404
+    else code valide
+        WR-->>WS: Workshop
+        alt déjà membre, son propre atelier ou équipe complète (RG-W1)
+            WS-->>C: BusinessException
+            C-->>U: redirect:/workshops/join/{code} + message d'erreur
+        else
+            WS->>WS: workshop.getParticipants().add(user) (N-N)
+            WS-->>C: Workshop
+            C-->>U: redirect:/workshops/{id} + « Vous avez rejoint l'équipe »
+        end
     end
 ```
 
