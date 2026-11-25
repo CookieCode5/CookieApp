@@ -3,13 +3,19 @@ package com.cookiecode.cookieapp.service;
 import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
+import com.cookiecode.cookieapp.model.Allergen;
 import com.cookiecode.cookieapp.model.User;
+import com.cookiecode.cookieapp.model.Utensil;
 import com.cookiecode.cookieapp.model.enums.Role;
+import com.cookiecode.cookieapp.repository.AllergenRepository;
 import com.cookiecode.cookieapp.repository.SubscriptionRepository;
+import com.cookiecode.cookieapp.repository.UtensilRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +32,12 @@ class UserServiceTest {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private AllergenRepository allergenRepository;
+
+    @Autowired
+    private UtensilRepository utensilRepository;
 
     private static RegisterDTO form(String username, String email, String password, String confirm) {
         RegisterDTO form = new RegisterDTO();
@@ -111,5 +123,45 @@ class UserServiceTest {
         assertEquals("chef", publicUser.getUsername());
         assertFalse(publicUser.isPremium());
         assertFalse(publicUser.isAdmin());
+    }
+
+    private Allergen newAllergen(String name) {
+        Allergen allergen = new Allergen();
+        allergen.setName(name);
+        return allergenRepository.save(allergen);
+    }
+
+    @Test
+    void updateAllergies_replacesTheWholeList() {
+        User user = registerChef();
+        Allergen sesame = newAllergen("Sesame");
+        Allergen mustard = newAllergen("Mustard");
+
+        userService.updateAllergies(user, Set.of(sesame.getId()));
+        userService.updateAllergies(user, Set.of(mustard.getId()));
+
+        assertEquals(Set.of(mustard.getId()), userService.allergenIds(user));
+    }
+
+    @Test
+    void updateAllergies_withNoBoxTickedRemovesEveryAllergy() {
+        User user = registerChef();
+        userService.updateAllergies(user, Set.of(newAllergen("Sesame").getId()));
+
+        userService.updateAllergies(user, null);
+
+        assertTrue(userService.allergenIds(user).isEmpty());
+    }
+
+    @Test
+    void updateUtensils_replacesTheWholeList() {
+        User user = registerChef();
+        Utensil rollingPin = new Utensil();
+        rollingPin.setName("Rolling pin");
+        rollingPin = utensilRepository.save(rollingPin);
+
+        userService.updateUtensils(user, Set.of(rollingPin.getId()));
+
+        assertEquals(Set.of(rollingPin.getId()), userService.utensilIds(user));
     }
 }
