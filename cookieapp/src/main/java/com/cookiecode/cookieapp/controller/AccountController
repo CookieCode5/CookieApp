@@ -1,0 +1,64 @@
+package com.cookiecode.cookieapp.controller;
+
+import com.cookiecode.cookieapp.dto.PublicUser;
+import com.cookiecode.cookieapp.model.User;
+import com.cookiecode.cookieapp.service.SubscriptionService;
+import com.cookiecode.cookieapp.service.UserService;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Set;
+
+// Every route here is protected by LoginInterceptor (/account/** in WebConfig)
+@Controller
+@RequiredArgsConstructor
+public class AccountController {
+
+    private final UserService userService;
+    private final SubscriptionService subscriptionService;
+
+    @GetMapping("/account")
+    public String account(Model model, HttpSession session) {
+        User user = currentUser(session);
+        addProfile(model, user, "preferences");
+        model.addAttribute("allergens", userService.allAllergens());
+        model.addAttribute("utensils", userService.allUtensils());
+        model.addAttribute("myAllergenIds", userService.allergenIds(user));
+        model.addAttribute("myUtensilIds", userService.utensilIds(user));
+        return "account";
+    }
+
+    // No box ticked: the browser sends no parameter at all, hence required = false
+    @PostMapping("/account/allergies")
+    public String updateAllergies(@RequestParam(name = "allergenIds", required = false) Set<Long> allergenIds,
+                                  HttpSession session, RedirectAttributes redirect) {
+        userService.updateAllergies(currentUser(session), allergenIds);
+        redirect.addFlashAttribute("success", "Vos allergies sont enregistrées.");
+        return "redirect:/account";
+    }
+
+    @PostMapping("/account/utensils")
+    public String updateUtensils(@RequestParam(name = "utensilIds", required = false) Set<Long> utensilIds,
+                                 HttpSession session, RedirectAttributes redirect) {
+        userService.updateUtensils(currentUser(session), utensilIds);
+        redirect.addFlashAttribute("success", "Vos équipements sont enregistrés.");
+        return "redirect:/account";
+    }
+
+    private User currentUser(HttpSession session) {
+        PublicUser me = (PublicUser) session.getAttribute(PublicUser.SESSION_KEY);
+        return userService.findById(me.getId());
+    }
+
+    private void addProfile(Model model, User user, String tab) {
+        model.addAttribute("user", user);
+        model.addAttribute("premium", subscriptionService.isPremium(user));
+        model.addAttribute("tab", tab);
+    }
+}
