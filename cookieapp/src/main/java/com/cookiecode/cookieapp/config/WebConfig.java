@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 public class WebConfig implements WebMvcConfigurer {
 
     private final LoginInterceptor loginInterceptor;
+    private final PremiumRecipeInterceptor premiumRecipeInterceptor;
 
     @Value("${app.upload-dir:uploads}")
     private String uploadDir;
@@ -34,6 +35,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/workshops/**",
                         "/recipes/*/reviews/**",
                         "/admin/**");
+
+        registry.addInterceptor(premiumRecipeInterceptor)
+                .addPathPatterns("/recipes/*");
     }
 
     @Override
