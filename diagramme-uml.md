@@ -71,6 +71,7 @@ class Recipe {
   preparation_time : INT
   cooking_time : INT
   difficulty : VARCHAR «Difficulty»
+  category : VARCHAR «Category»
   vegetarian : BOOLEAN
   vegan : BOOLEAN
   premium : BOOLEAN
@@ -191,6 +192,15 @@ class Difficulty {
   MEDIUM
   HARD
 }
+class Category {
+  <<enumeration>>
+  CAKE
+  TART
+  COOKIE
+  BREAD
+  PASTRY
+  OTHER
+}
 class Unit {
   <<enumeration>>
   G
@@ -286,7 +296,9 @@ classDiagram
         +toPublicUser(User) PublicUser
         +updateUtensils(User, Set~Long~ utensilIds)
         +updateAllergies(User, Set~Long~ allergenIds)
-        +toggleFavorite(User, Long recipeId)
+        +toggleFavorite(User, Long recipeId) boolean
+        +favoriteRecipes(User) List~Recipe~
+        +myRecipes(User) List~Recipe~
     }
     class SubscriptionService {
         +createFree(User) Subscription
@@ -422,7 +434,6 @@ classDiagram
     }
     class ReviewController {
         +POST /recipes/id/reviews
-        +POST /recipes/id/favorite
     }
     class FridgeController {
         +GET/POST /fridge
@@ -432,6 +443,9 @@ classDiagram
         +POST /account/allergies
         +POST /account/utensils
         +POST /account/pantry
+        +GET /account/recipes
+        +POST /recipes/id/favorite
+        +POST /account/favorites/id/remove
         +GET /offers
         +POST /offers/premium
     }
@@ -457,6 +471,9 @@ classDiagram
         +DELETE /api/v1/recipes/id
     }
     class LoginInterceptor {
+        +preHandle() boolean
+    }
+    class PremiumRecipeInterceptor {
         +preHandle() boolean
     }
 
@@ -523,6 +540,7 @@ classDiagram
     AccountController --> UserService
     AccountController --> PantryService
     AccountController --> SubscriptionService
+    PremiumRecipeInterceptor --> SubscriptionService
     WorkshopController --> WorkshopService
     AdminController --> IngredientRepository
     AdminController --> UtensilRepository
@@ -544,7 +562,7 @@ classDiagram
     WorkshopService --> WorkshopRepository
 ```
 
-Chaque controller renvoie une vue Thymeleaf (sauf `RecipeApiController`, qui renvoie du JSON). `LoginInterceptor` protège `/fridge`, `/account/**`, `/offers/**`, `/recipes/new`, `/recipes/*/edit`, `/workshops` et `/workshops/**`, `/admin/**` (rôle `ADMIN`).
+Chaque controller renvoie une vue Thymeleaf (sauf `RecipeApiController`, qui renvoie du JSON). `LoginInterceptor` protège `/fridge`, `/account/**`, `/offers/**`, `/recipes/new`, `/recipes/*/edit`, `/workshops` et `/workshops/**`, `/admin/**` (rôle `ADMIN`). `PremiumRecipeInterceptor` protège la fiche `/recipes/{id}` d'une recette premium : un visiteur est envoyé vers `/login`, un compte FREE vers `/offers` (`SubscriptionService.canView`).
 
 ## 4. Séquence « Inscription »
 
