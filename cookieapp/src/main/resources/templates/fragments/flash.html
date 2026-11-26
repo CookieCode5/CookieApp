@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- Set with redirect.addFlashAttribute("success" or "error", "..."). Already included in the header. -->
-<div th:fragment="flash" th:if="${success != null or error != null}" class="bg-cream">
+<!-- Set with redirect.addFlashAttribute("success" or "error", "..."). Already included in the header.
+     Error pages also receive an "error" attribute (e.g. "Not Found") together with "status": it is not a message, so it is skipped. -->
+<div th:fragment="flash" th:if="${success != null or (error != null and status == null)}" class="bg-cream">
     <div class="mx-auto max-w-6xl px-6 pt-4">
         <p th:if="${success}" th:text="${success}" role="status"
            class="rounded-xl border border-primary/30 bg-sand px-4 py-3 text-sm font-semibold text-primary">
             Votre compte est créé.
         </p>
-        <p th:if="${error}" th:text="${error}" role="alert"
+        <p th:if="${error != null and status == null}" th:text="${error}" role="alert"
            class="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
             Une erreur est survenue.
         </p>
