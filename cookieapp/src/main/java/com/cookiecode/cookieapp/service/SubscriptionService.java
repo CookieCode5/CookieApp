@@ -1,8 +1,10 @@
 package com.cookiecode.cookieapp.service;
 
 import com.cookiecode.cookieapp.exception.BusinessException;
+import com.cookiecode.cookieapp.model.Recipe;
 import com.cookiecode.cookieapp.model.Subscription;
 import com.cookiecode.cookieapp.model.User;
+import com.cookiecode.cookieapp.model.enums.Role;
 import com.cookiecode.cookieapp.model.enums.SubscriptionType;
 import com.cookiecode.cookieapp.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
@@ -67,5 +69,19 @@ public class SubscriptionService {
         subscription.setStart_date(today);
         subscription.setEnd_date(today.plusMonths(months));
         return subscriptionRepository.save(subscription);
+    }
+
+    // A premium recipe is reserved to PREMIUM accounts; its author and the admins can always open it.
+    // user is null for a visitor who is not logged in.
+    @Transactional(readOnly = true)
+    public boolean canView(User user, Recipe recipe) {
+        if (!recipe.isPremium()) {
+            return true;
+        }
+        if (user == null) {
+            return false;
+        }
+        boolean isAuthor = recipe.getAuthor() != null && recipe.getAuthor().getId() == user.getId();
+        return isAuthor || user.getRole() == Role.ADMIN || isPremium(user);
     }
 }
