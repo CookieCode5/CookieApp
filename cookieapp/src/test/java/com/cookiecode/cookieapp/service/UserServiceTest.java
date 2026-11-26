@@ -4,10 +4,12 @@ import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
 import com.cookiecode.cookieapp.model.Allergen;
+import com.cookiecode.cookieapp.model.Recipe;
 import com.cookiecode.cookieapp.model.User;
 import com.cookiecode.cookieapp.model.Utensil;
 import com.cookiecode.cookieapp.model.enums.Role;
 import com.cookiecode.cookieapp.repository.AllergenRepository;
+import com.cookiecode.cookieapp.repository.RecipeRepository;
 import com.cookiecode.cookieapp.repository.SubscriptionRepository;
 import com.cookiecode.cookieapp.repository.UtensilRepository;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,9 @@ class UserServiceTest {
 
     @Autowired
     private UtensilRepository utensilRepository;
+
+    @Autowired
+    private RecipeRepository recipeRepository;
 
     private static RegisterDTO form(String username, String email, String password, String confirm) {
         RegisterDTO form = new RegisterDTO();
@@ -163,5 +168,36 @@ class UserServiceTest {
         userService.updateUtensils(user, Set.of(rollingPin.getId()));
 
         assertEquals(Set.of(rollingPin.getId()), userService.utensilIds(user));
+    }
+
+    private Recipe newRecipe(String title, User author) {
+        Recipe recipe = new Recipe();
+        recipe.setTitle(title);
+        recipe.setAuthor(author);
+        return recipeRepository.save(recipe);
+    }
+
+    @Test
+    void toggleFavorite_addsThenRemovesTheRecipe() {
+        User user = registerChef();
+        Recipe recipe = newRecipe("Lemon tart", null);
+
+        assertTrue(userService.toggleFavorite(user, recipe.getId()));
+        assertTrue(userService.isFavorite(user, recipe.getId()));
+        assertEquals(1, userService.favoriteRecipes(user).size());
+
+        assertFalse(userService.toggleFavorite(user, recipe.getId()));
+        assertFalse(userService.isFavorite(user, recipe.getId()));
+        assertTrue(userService.favoriteRecipes(user).isEmpty());
+    }
+
+    @Test
+    void myRecipes_onlyListsTheRecipesIWrote() {
+        User user = registerChef();
+        newRecipe("My brownie", user);
+        newRecipe("Somebody else's cake", null);
+
+        assertEquals(1, userService.myRecipes(user).size());
+        assertEquals("My brownie", userService.myRecipes(user).get(0).getTitle());
     }
 }

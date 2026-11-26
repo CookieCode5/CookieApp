@@ -11,13 +11,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Set;
 
-// Every route here is protected by LoginInterceptor (/account/** and /offers/** in WebConfig)
+// Every route here is protected by LoginInterceptor (/account/**, /offers/** and /recipes/*/favorite in WebConfig)
 @Controller
 @RequiredArgsConstructor
 public class AccountController {
@@ -53,6 +54,33 @@ public class AccountController {
         userService.updateUtensils(currentUser(session), utensilIds);
         redirect.addFlashAttribute("success", "Vos équipements sont enregistrés.");
         return "redirect:/account";
+    }
+
+    @GetMapping("/account/recipes")
+    public String myRecipes(Model model, HttpSession session) {
+        User user = currentUser(session);
+        addProfile(model, user, "recipes");
+        model.addAttribute("myRecipes", userService.myRecipes(user));
+        model.addAttribute("favorites", userService.favoriteRecipes(user));
+        return "account";
+    }
+
+    // Heart button of a recipe page: adds or removes the favorite, then goes back to the recipe
+    @PostMapping("/recipes/{id}/favorite")
+    public String toggleFavorite(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
+        boolean added = userService.toggleFavorite(currentUser(session), id);
+        redirect.addFlashAttribute("success", added ? "Recette ajoutée à vos favoris." : "Recette retirée de vos favoris.");
+        return "redirect:/recipes/" + id;
+    }
+
+    @PostMapping("/account/favorites/{id}/remove")
+    public String removeFavorite(@PathVariable Long id, HttpSession session, RedirectAttributes redirect) {
+        User user = currentUser(session);
+        if (userService.isFavorite(user, id)) {
+            userService.toggleFavorite(user, id);
+        }
+        redirect.addFlashAttribute("success", "Recette retirée de vos favoris.");
+        return "redirect:/account/recipes";
     }
 
     @GetMapping("/offers")
