@@ -20,6 +20,7 @@ import lombok.Setter;
 public class RecipeIngredient {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String note;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "recipe_id")
     private Recipe recipe;
