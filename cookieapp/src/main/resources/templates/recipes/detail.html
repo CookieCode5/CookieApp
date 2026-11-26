@@ -24,7 +24,29 @@
         <span th:each="a : ${recipe.allergens()}" th:text="${a.name}"
               class="ml-1 rounded-full bg-accent/40 px-2 py-0.5"></span>
       </div>
-      <!-- TODO AmiraO (Sprint 3): servings selector + price block -->
+      <!-- Price block + servings selector -->
+<div class="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-sand">
+    <form th:action="@{/recipes/{id}(id=${recipe.id})}" method="get" class="flex flex-wrap items-center gap-3">
+        <label for="servings" class="text-sm font-semibold">Ajustez vos portions :</label>
+        <input id="servings" name="servings" type="number" min="1" max="50"
+               th:value="${servings}" class="w-20 rounded-lg border border-sand bg-cream px-2 py-1 text-sm">
+        <button class="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-cream">Recalculer</button>
+    </form>
+    <div class="mt-3 grid grid-cols-3 gap-3 text-center">
+        <div>
+            <p class="text-xs text-dark/60">Prix total</p>
+            <p class="text-xl font-extrabold" th:text="${#numbers.formatDecimal(recipeCost, 1, 2)} + ' €'">0,00 €</p>
+        </div>
+        <div>
+            <p class="text-xs text-dark/60">Par personne</p>
+            <p class="text-xl font-extrabold text-primary" th:text="${#numbers.formatDecimal(costPerServing, 1, 2)} + ' €'">0,00 €</p>
+        </div>
+        <div>
+            <p class="text-xs text-dark/60">À acheter (hors garde-manger)</p>
+            <p class="text-xl font-extrabold" th:text="${#numbers.formatDecimal(missingCost, 1, 2)} + ' €'">0,00 €</p>
+        </div>
+    </div>
+</div>
     </div>
   </section>
 
@@ -33,10 +55,11 @@
       <h2 class="text-xl font-bold">Ingrédients</h2>
       <ul class="mt-3 space-y-1">
         <li th:each="line : ${recipe.ingredients}">
-          <span th:text="${line.quantity} + ' ' + ${line.unit}"></span>
-          <span th:text="${line.ingredient.name}"></span>
-          <em th:if="${line.optional}" class="text-dark/60">(facultatif)</em>
-        </li>
+    <span th:text="${#numbers.formatDecimal(line.quantityFor(servings), 1, 2)} + ' ' + ${line.unit}"></span>
+    <span th:text="${line.ingredient.name}"></span>
+    <em th:if="${line.optional}" class="text-dark/60">(facultatif)</em>
+    <span th:if="${line.note != null}" class="text-dark/60" th:text="'· ' + ${line.note}"></span>
+</li>
       </ul>
       <h2 class="mt-6 text-xl font-bold">Ustensiles</h2>
       <ul class="mt-3 flex flex-wrap gap-2">
@@ -87,6 +110,14 @@
     <p th:if="${session.user == null}" class="mt-6 text-sm">
     <a th:href="@{/login}" class="text-primary underline">Connectez-vous</a> pour noter cette recette.
     </p>
+    <div th:if="${canEdit}" class="mt-2 flex gap-2">
+    <a th:href="@{/recipes/{id}/edit(id=${recipe.id})}"
+       class="rounded-full bg-sand px-4 py-1.5 text-sm font-semibold text-primary">Modifier</a>
+    <form th:action="@{/recipes/{id}/delete(id=${recipe.id})}" method="post"
+          onsubmit="return confirm('Supprimer cette recette ?');">
+        <button class="rounded-full border border-red-700 px-4 py-1.5 text-sm font-semibold text-red-700">Supprimer</button>
+    </form>
+</div>
 
     <article th:each="rv : ${reviews}" class="mt-4 rounded-2xl bg-white p-5 shadow-sm">
     <p class="font-semibold"><span th:text="${rv.user.username}"></span> · <span th:text="${rv.rating} + ' ★'"></span></p>

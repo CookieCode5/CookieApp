@@ -6,14 +6,64 @@
 <header th:replace="~{fragments/header :: header('recettes')}"></header>
 
 <main class="mx-auto max-w-6xl px-6 pt-12">
-    <h1 class="text-3xl font-extrabold">Toutes les recettes</h1>
-    <p class="mt-1 text-dark/70">
-        <span th:text="${nbRecettes}">0</span>
-        <span th:text="${nbRecettes > 1} ? 'recettes' : 'recette'">recettes</span>
-    </p>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold">Toutes les recettes</h1>
+            <p class="mt-1 text-dark/70">
+                <span th:text="${nbRecettes}">0</span>
+                <span th:text="${nbRecettes > 1} ? 'recettes' : 'recette'">recettes</span>
+            </p>
+        </div>
+        <a th:href="@{/recipes/new}"
+           class="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-cream hover:opacity-90">
+            + Créer une recette
+        </a>
+    </div>
+
+    <!-- Search + filters -->
+    <form th:action="@{/recipes}" method="get"
+          class="mt-6 grid gap-3 rounded-2xl bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
+        <input type="text" name="q" th:value="${q}" placeholder="Rechercher par titre…"
+               class="rounded-xl border border-sand bg-cream px-3 py-2 text-sm">
+        <select name="category" class="rounded-xl border border-sand bg-cream px-3 py-2 text-sm">
+            <option value="">Toutes catégories</option>
+            <option th:each="c : ${categories}" th:value="${c}" th:text="${c.libelle}"
+                    th:selected="${selectedCategory == c}"></option>
+        </select>
+        <select name="maxTime" class="rounded-xl border border-sand bg-cream px-3 py-2 text-sm">
+            <option value="">Tout temps</option>
+            <option value="20"  th:selected="${maxTime == 20}">≤ 20 min</option>
+            <option value="30"  th:selected="${maxTime == 30}">≤ 30 min</option>
+            <option value="60"  th:selected="${maxTime == 60}">≤ 60 min</option>
+        </select>
+        <select name="sort" class="rounded-xl border border-sand bg-cream px-3 py-2 text-sm">
+            <option value="recent" th:selected="${sort == 'recent'}">Plus récentes</option>
+            <option value="rating" th:selected="${sort == 'rating'}">Mieux notées</option>
+            <option value="time"   th:selected="${sort == 'time'}">Plus rapides</option>
+        </select>
+        <div class="flex items-center gap-3">
+            <label class="inline-flex items-center gap-2 text-sm">
+                <input type="checkbox" name="vegetarian" value="true"
+                       th:checked="${vegetarian != null and vegetarian}" class="h-4 w-4 accent-primary">
+                🥕 Végétarien
+            </label>
+            <button class="ml-auto rounded-full bg-primary px-4 py-2 text-sm font-semibold text-cream">Filtrer</button>
+        </div>
+    </form>
+
+    <!-- Category chips -->
+    <nav class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
+        <a th:href="@{/recipes}" class="rounded-full px-4 py-1"
+           th:classappend="${selectedCategory == null} ? 'bg-primary text-cream' : 'bg-white'">Toutes</a>
+        <a th:each="c : ${categories}"
+           th:href="@{/recipes(category=${c})}"
+           class="rounded-full px-4 py-1"
+           th:classappend="${selectedCategory == c} ? 'bg-primary text-cream' : 'bg-white'"
+           th:text="${c.libelle}">Cake</a>
+    </nav>
 
     <p th:if="${#lists.isEmpty(recettes)}" class="mt-8 rounded-2xl bg-white p-8 text-center text-dark/70">
-        Aucune recette pour le moment.
+        Aucune recette ne correspond à votre recherche.
     </p>
 
     <div th:unless="${#lists.isEmpty(recettes)}"

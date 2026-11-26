@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.cookiecode.cookieapp.model.enums.Difficulty;
+import com.cookiecode.cookieapp.model.enums.Category;
 
 
 
@@ -70,4 +71,7 @@ public class Recipe {
     @ManyToMany(mappedBy = "favorites")
     @ToString.Exclude
     private Set<User> users = new HashSet<>();
+
+   @Enumerated(EnumType.STRING) private Category category;
+
 }
