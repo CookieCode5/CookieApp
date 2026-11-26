@@ -42,7 +42,7 @@ public class WorkshopController {
         WorkshopForm form = new WorkshopForm();
         form.setRecipeId(recipeId);
         model.addAttribute("workshopForm", form);
-        model.addAttribute("recipes", recipeService.lister());
+        model.addAttribute("recipes", recipeService.findAll());
         return "workshops/form";
     }
 
@@ -58,7 +58,7 @@ public class WorkshopController {
                 result.rejectValue("recipeId", "business", e.getMessage());
             }
         }
-        model.addAttribute("recipes", recipeService.lister());
+        model.addAttribute("recipes", recipeService.findAll());
         return "workshops/form";
     }
 

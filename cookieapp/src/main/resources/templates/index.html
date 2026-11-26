@@ -34,9 +34,9 @@
     <section class="mx-auto max-w-6xl px-6 pt-12">
         <div class="flex items-end justify-between">
             <h2 class="text-2xl font-bold">Dernières recettes</h2>
-            <a th:if="${nbRecettes > 0}" th:href="@{/recipes}"
+            <a th:if="${recipeCount > 0}" th:href="@{/recipes}"
                class="text-sm font-semibold text-primary hover:underline">
-                Tout voir (<span th:text="${nbRecettes}">6</span>)
+                Tout voir (<span th:text="${recipeCount}">6</span>)
             </a>
         </div>
 
@@ -52,13 +52,13 @@
    th:classappend="${filter == 'budget'} ? 'bg-primary text-cream' : 'bg-white'">💶 ≤ 3 €/pers.</a>
         </nav>
 
-        <p th:if="${#lists.isEmpty(recettes)}" class="mt-8 rounded-2xl bg-white p-8 text-center text-dark/70">
+        <p th:if="${#lists.isEmpty(recipes)}" class="mt-8 rounded-2xl bg-white p-8 text-center text-dark/70">
             Aucune recette ne correspond à ce filtre.
         </p>
 
-        <div th:unless="${#lists.isEmpty(recettes)}"
+        <div th:unless="${#lists.isEmpty(recipes)}"
              class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <th:block th:each="r : ${recettes}">
+            <th:block th:each="r : ${recipes}">
                 <div th:replace="~{fragments/recipe-card :: carte(${r})}"></div>
             </th:block>
         </div>
