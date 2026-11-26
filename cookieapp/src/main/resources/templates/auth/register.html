@@ -42,7 +42,7 @@
                 <div class="flex flex-col gap-1.5">
                     <label for="username" class="text-sm font-semibold">Pseudo</label>
                     <input th:field="*{username}" id="username" type="text" autocomplete="username" required
-                           placeholder="ex. amina_cuisine"
+                           placeholder="ex. chef_patissier"
                            th:classappend="${#fields.hasErrors('username')} ? 'border-red-400' : 'border-sand'"
                            class="rounded-xl border bg-cream px-4 py-2.5 focus:border-primary focus:outline-none">
                     <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-sm text-red-700"></p>
