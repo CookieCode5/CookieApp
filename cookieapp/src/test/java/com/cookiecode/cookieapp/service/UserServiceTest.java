@@ -3,41 +3,41 @@ package com.cookiecode.cookieapp.service;
 import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
+import com.cookiecode.cookieapp.model.Allergen;
 import com.cookiecode.cookieapp.model.User;
+import com.cookiecode.cookieapp.model.Utensil;
 import com.cookiecode.cookieapp.model.enums.Role;
-import com.cookiecode.cookieapp.repository.UserRepository;
-
-import org.junit.jupiter.api.BeforeEach;
+import com.cookiecode.cookieapp.repository.AllergenRepository;
+import com.cookiecode.cookieapp.repository.SubscriptionRepository;
+import com.cookiecode.cookieapp.repository.UtensilRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+// Real service and real H2 database; @Transactional rolls every test back, so nothing stays in the database
+@SpringBootTest
+@Transactional
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private SubscriptionService subscriptionService;
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
+    @Autowired
     private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        userService = new UserService(userRepository, subscriptionService, passwordEncoder);
-    }
+    @Autowired
+    private SubscriptionService subscriptionService;
+
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private AllergenRepository allergenRepository;
+
+    @Autowired
+    private UtensilRepository utensilRepository;
 
     private static RegisterDTO form(String username, String email, String password, String confirm) {
         RegisterDTO form = new RegisterDTO();
@@ -48,98 +48,120 @@ class UserServiceTest {
         return form;
     }
 
+    private User registerChef() {
+        return userService.register(form("chef", "chef@example.com", "password123", "password123"));
+    }
+
     @Test
-    void register_hashesPasswordNormalizesEmailAndCreatesFreeSubscription() {
-        when(userRepository.existsByEmail("amina@test.fr")).thenReturn(false);
-        when(userRepository.existsByUsername("amina")).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    void register_createsAUserWithAHashedPasswordAndAFreeSubscription() {
+        User user = userService.register(form(" chef ", " Chef@Example.com ", "password123", "password123"));
 
-        User saved = userService.register(form(" amina ", " Amina@Test.fr ", "motdepasse", "motdepasse"));
-
-        assertEquals("amina", saved.getUsername());
-        assertEquals("amina@test.fr", saved.getEmail());
-        assertNotEquals("motdepasse", saved.getPassword_hash());
-        assertTrue(passwordEncoder.matches("motdepasse", saved.getPassword_hash()));
-        assertEquals(Role.USER, saved.getRole());
-        verify(subscriptionService).createFree(saved);
+        assertEquals("chef", user.getUsername());
+        assertEquals("chef@example.com", user.getEmail());
+        assertEquals(Role.USER, user.getRole());
+        assertNotEquals("password123", user.getPassword_hash());
+        assertTrue(subscriptionRepository.findByUser(user).isPresent());
+        assertFalse(subscriptionService.isPremium(user));
     }
 
     @Test
     void register_refusesAnEmailAlreadyUsed() {
-        when(userRepository.existsByEmail("amina@test.fr")).thenReturn(true);
+        registerChef();
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> userService.register(form("amina", "amina@test.fr", "motdepasse", "motdepasse")));
+                () -> userService.register(form("otherChef", "chef@example.com", "password123", "password123")));
 
         assertEquals("email", e.getField());
-        verify(userRepository, never()).save(any());
-        verifyNoInteractions(subscriptionService);
     }
 
     @Test
     void register_refusesAUsernameAlreadyUsed() {
-        when(userRepository.existsByEmail("amina@test.fr")).thenReturn(false);
-        when(userRepository.existsByUsername("amina")).thenReturn(true);
+        registerChef();
 
         BusinessException e = assertThrows(BusinessException.class,
-                () -> userService.register(form("amina", "amina@test.fr", "motdepasse", "motdepasse")));
+                () -> userService.register(form("chef", "other@example.com", "password123", "password123")));
 
         assertEquals("username", e.getField());
-        verify(userRepository, never()).save(any());
     }
 
     @Test
     void register_refusesDifferentPasswords() {
         BusinessException e = assertThrows(BusinessException.class,
-                () -> userService.register(form("amina", "amina@test.fr", "motdepasse", "autrechose")));
+                () -> userService.register(form("chef", "chef@example.com", "password123", "differentPassword")));
 
         assertEquals("confirmPassword", e.getField());
-        verifyNoInteractions(userRepository, subscriptionService);
-    }
-
-    private User existingUser() {
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("amina");
-        user.setEmail("amina@test.fr");
-        user.setPassword_hash(passwordEncoder.encode("motdepasse"));
-        user.setRole(Role.USER);
-        return user;
     }
 
     @Test
     void authenticate_acceptsTheRightPasswordWhateverTheEmailCase() {
-        when(userRepository.findByEmail("amina@test.fr")).thenReturn(Optional.of(existingUser()));
+        registerChef();
 
-        User user = userService.authenticate(" Amina@test.fr", "motdepasse");
+        User user = userService.authenticate(" Chef@Example.com", "password123");
 
-        assertEquals("amina", user.getUsername());
+        assertEquals("chef", user.getUsername());
     }
 
     @Test
     void authenticate_refusesAWrongPassword() {
-        when(userRepository.findByEmail("amina@test.fr")).thenReturn(Optional.of(existingUser()));
+        registerChef();
 
-        assertThrows(BusinessException.class, () -> userService.authenticate("amina@test.fr", "mauvais"));
+        assertThrows(BusinessException.class, () -> userService.authenticate("chef@example.com", "wrongPassword"));
     }
 
     @Test
     void authenticate_refusesAnUnknownEmail() {
-        when(userRepository.findByEmail("inconnu@test.fr")).thenReturn(Optional.empty());
-
-        assertThrows(BusinessException.class, () -> userService.authenticate("inconnu@test.fr", "motdepasse"));
+        assertThrows(BusinessException.class, () -> userService.authenticate("unknown@example.com", "password123"));
     }
 
     @Test
-    void toPublicUser_keepsNoPasswordAndReadsPremiumFromTheSubscription() {
-        User user = existingUser();
-        when(subscriptionService.isPremium(user)).thenReturn(true);
+    void toPublicUser_keepsNoPassword() {
+        User user = registerChef();
 
         PublicUser publicUser = userService.toPublicUser(user);
 
-        assertEquals(1L, publicUser.getId());
-        assertEquals("amina", publicUser.getUsername());
-        assertTrue(publicUser.isPremium());
+        assertEquals(user.getId(), publicUser.getId());
+        assertEquals("chef", publicUser.getUsername());
+        assertFalse(publicUser.isPremium());
         assertFalse(publicUser.isAdmin());
+    }
+
+    private Allergen newAllergen(String name) {
+        Allergen allergen = new Allergen();
+        allergen.setName(name);
+        return allergenRepository.save(allergen);
+    }
+
+    @Test
+    void updateAllergies_replacesTheWholeList() {
+        User user = registerChef();
+        Allergen sesame = newAllergen("Sesame");
+        Allergen mustard = newAllergen("Mustard");
+
+        userService.updateAllergies(user, Set.of(sesame.getId()));
+        userService.updateAllergies(user, Set.of(mustard.getId()));
+
+        assertEquals(Set.of(mustard.getId()), userService.allergenIds(user));
+    }
+
+    @Test
+    void updateAllergies_withNoBoxTickedRemovesEveryAllergy() {
+        User user = registerChef();
+        userService.updateAllergies(user, Set.of(newAllergen("Sesame").getId()));
+
+        userService.updateAllergies(user, null);
+
+        assertTrue(userService.allergenIds(user).isEmpty());
+    }
+
+    @Test
+    void updateUtensils_replacesTheWholeList() {
+        User user = registerChef();
+        Utensil rollingPin = new Utensil();
+        rollingPin.setName("Rolling pin");
+        rollingPin = utensilRepository.save(rollingPin);
+
+        userService.updateUtensils(user, Set.of(rollingPin.getId()));
+
+        assertEquals(Set.of(rollingPin.getId()), userService.utensilIds(user));
     }
 }

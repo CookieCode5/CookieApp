@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Mon espace')}"></head>
+<body class="bg-cream font-sans text-dark">
+
+<header th:replace="~{fragments/header :: header('account')}"></header>
+
+<main class="mx-auto max-w-6xl px-6 pt-10">
+
+    <section class="flex flex-col gap-6 rounded-3xl bg-sand p-8 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-5">
+            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-2xl font-extrabold text-cream"
+                 th:text="${#strings.toUpperCase(#strings.substring(user.username, 0, 1))}">A</div>
+            <div>
+                <h1 class="text-2xl font-extrabold" th:text="${user.username}">Pseudo</h1>
+                <p class="mt-1 flex flex-wrap items-center gap-2 text-sm text-dark/70">
+                    <span th:if="${premium}" class="rounded-full bg-dark px-3 py-0.5 text-xs font-semibold text-cream">Premium</span>
+                    <span th:unless="${premium}" class="rounded-full bg-cream px-3 py-0.5 text-xs font-semibold text-dark">Compte gratuit</span>
+                    <span th:if="${premium and premiumUntil != null}"
+                          th:text="|jusqu'au ${#temporals.format(premiumUntil, 'dd/MM/yyyy')}|">jusqu'au 25/12/2026</span>
+                    <span th:if="${user.registration_date != null}"
+                          th:text="|· membre depuis le ${#temporals.format(user.registration_date, 'dd/MM/yyyy')}|">· membre depuis</span>
+                </p>
+            </div>
+        </div>
+        <a th:unless="${premium}" th:href="@{/offers}"
+           class="rounded-full bg-primary px-6 py-3 text-center font-semibold text-cream hover:opacity-90">
+            Passer Premium ⭐
+        </a>
+    </section>
+
+    <nav class="mt-8 flex gap-6 border-b border-sand text-sm font-semibold">
+        <a th:href="@{/account}"
+           th:classappend="${tab == 'preferences'} ? 'border-b-2 border-primary text-primary' : 'text-dark/60 hover:text-dark'"
+           class="pb-3">Allergies &amp; équipements</a>
+        <a th:href="@{/offers}"
+           th:classappend="${tab == 'offers'} ? 'border-b-2 border-primary text-primary' : 'text-dark/60 hover:text-dark'"
+           class="pb-3">Offres</a>
+    </nav>
+
+    <div th:if="${tab == 'preferences'}" class="mt-8 grid gap-6 md:grid-cols-2">
+
+        <form th:action="@{/account/allergies}" method="post" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-sand">
+            <h2 class="text-lg font-bold">Mes allergies</h2>
+            <p class="mt-1 text-sm text-dark/70">Les recettes qui en contiennent vous seront signalées.</p>
+            <p th:if="${#lists.isEmpty(allergens)}" class="mt-4 text-sm text-dark/60">Aucun allergène enregistré.</p>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <label th:each="a : ${allergens}"
+                       class="flex cursor-pointer items-center gap-2 rounded-full border border-sand px-4 py-2 text-sm hover:bg-cream">
+                    <input type="checkbox" name="allergenIds" th:value="${a.id}"
+                           th:checked="${#sets.contains(myAllergenIds, a.id)}" class="accent-primary">
+                    <span th:text="${a.name}">Gluten</span>
+                </label>
+            </div>
+            <button type="submit" class="mt-6 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-cream hover:opacity-90">
+                Enregistrer mes allergies
+            </button>
+        </form>
+
+        <form th:action="@{/account/utensils}" method="post" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-sand">
+            <h2 class="text-lg font-bold">Mes équipements</h2>
+            <p class="mt-1 text-sm text-dark/70">Le Frigo Magique ne vous proposera que ce que vous pouvez réaliser.</p>
+            <p th:if="${#lists.isEmpty(utensils)}" class="mt-4 text-sm text-dark/60">Aucun ustensile enregistré.</p>
+            <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                <label th:each="u : ${utensils}"
+                       class="flex cursor-pointer items-center gap-2 rounded-xl border border-sand px-4 py-2 text-sm hover:bg-cream">
+                    <input type="checkbox" name="utensilIds" th:value="${u.id}"
+                           th:checked="${#sets.contains(myUtensilIds, u.id)}" class="accent-primary">
+                    <span th:text="${u.name}">Fouet</span>
+                </label>
+            </div>
+            <button type="submit" class="mt-6 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-cream hover:opacity-90">
+                Enregistrer mes équipements
+            </button>
+        </form>
+    </div>
+
+    <div th:if="${tab == 'offers'}" class="mt-8 grid gap-6 md:grid-cols-2">
+
+        <article class="flex flex-col rounded-3xl bg-white p-8 shadow-sm ring-1 ring-sand">
+            <p class="text-sm font-semibold uppercase tracking-wide text-dark/60">Compte gratuit</p>
+            <p class="mt-2 text-4xl font-extrabold">0 €</p>
+            <ul class="mt-6 space-y-3 text-sm">
+                <li>✓ Toutes les recettes de la communauté</li>
+                <li>✓ Créer, noter et commenter des recettes</li>
+                <li>✓ Frigo Magique, avec un nombre de recherches limité par jour</li>
+                <li class="text-dark/50">✗ Recettes premium</li>
+            </ul>
+            <p th:unless="${premium}" class="mt-auto pt-8 text-sm font-semibold text-primary">Votre formule actuelle</p>
+        </article>
+
+        <article class="flex flex-col rounded-3xl bg-dark p-8 text-cream shadow-sm">
+            <p class="text-sm font-semibold uppercase tracking-wide text-accent">CookieApp Premium</p>
+            <p class="mt-2 text-4xl font-extrabold">4,99 € <span class="text-base font-semibold text-cream/70">/ mois</span></p>
+            <ul class="mt-6 space-y-3 text-sm">
+                <li>✓ Tout le compte gratuit</li>
+                <li>✓ Recherches Frigo Magique illimitées</li>
+                <li>✓ Accès aux recettes premium</li>
+                <li>✓ Badge Premium sur votre profil</li>
+            </ul>
+            <div class="mt-auto pt-8">
+                <p th:if="${premium}" class="font-semibold text-accent">
+                    Votre formule actuelle<span th:if="${premiumUntil != null}"
+                        th:text="|, jusqu'au ${#temporals.format(premiumUntil, 'dd/MM/yyyy')}|"></span>
+                </p>
+                <form th:unless="${premium}" th:action="@{/offers/premium}" method="post">
+                    <button type="submit" class="w-full rounded-full bg-primary px-6 py-3 font-semibold text-cream hover:opacity-90">
+                        Passer Premium pour 1 mois
+                    </button>
+                    <p class="mt-2 text-center text-xs text-cream/70">Paiement simulé pour le projet : rien n'est débité.</p>
+                </form>
+            </div>
+        </article>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

@@ -8,10 +8,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Le pom contient spring-boot-starter-security : sans cette classe, TOUTES les pages
- * redirigent vers le formulaire de connexion par défaut de Spring Security.
- * Comme dans le plan, on ne garde que BCrypt ; la protection des pages se fera avec
- * l'intercepteur de session (ConnexionInterceptor, Amina).
+ * Spring Security is only used for BCrypt. Without this filter chain, every page would redirect
+ * to the default Spring Security login form; the pages are protected by LoginInterceptor instead.
  */
 @Configuration
 public class SecurityConfig {
@@ -25,9 +23,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                // CSRF désactivé pour rester simple (console H2, formulaires + session maison)
+                // Our forms and the H2 console post without a CSRF token
                 .csrf(csrf -> csrf.disable())
-                // console H2 affichée dans des frames de la même origine
+                // The H2 console is displayed in frames from the same origin
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         return http.build();
     }

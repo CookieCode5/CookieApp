@@ -23,9 +23,13 @@ Puis ouvrir **http://localhost:8081**. Pour arrêter l'application : `Ctrl + C`.
 
 ## Se connecter
 
+Comptes créés automatiquement au premier lancement :
+
 | Compte | Email | Mot de passe |
 | --- | --- | --- |
-| Utilisateur de démo | `chef@cookieapp.test` | `motdepasse123` |
+| Gratuit | `free@mail.com` | `FreePassword` |
+| Premium | `premium@mail.com` | `PremiumPassword` |
+| Administrateur | `admin@mail.com` | `AdminPassword` |
 
 On peut aussi créer son propre compte avec « Créer un compte ».
 

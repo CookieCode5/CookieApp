@@ -3,16 +3,26 @@ package com.cookiecode.cookieapp.service;
 import com.cookiecode.cookieapp.dto.PublicUser;
 import com.cookiecode.cookieapp.dto.RegisterDTO;
 import com.cookiecode.cookieapp.exception.BusinessException;
+import com.cookiecode.cookieapp.model.Allergen;
 import com.cookiecode.cookieapp.model.User;
+import com.cookiecode.cookieapp.model.Utensil;
 import com.cookiecode.cookieapp.model.enums.Role;
+import com.cookiecode.cookieapp.repository.AllergenRepository;
 import com.cookiecode.cookieapp.repository.UserRepository;
+import com.cookiecode.cookieapp.repository.UtensilRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +31,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final SubscriptionService subscriptionService;
     private final PasswordEncoder passwordEncoder;
+    private final AllergenRepository allergenRepository;
+    private final UtensilRepository utensilRepository;
 
     // RG-U1: unique email and username, confirmed password hashed with BCrypt, FREE subscription
     @Transactional
@@ -65,6 +77,56 @@ public class UserService {
                 user.getEmail(),
                 subscriptionService.isPremium(user),
                 user.getRole() == Role.ADMIN);
+    }
+
+    @Transactional(readOnly = true)
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Allergen> allAllergens() {
+        return allergenRepository.findAll(Sort.by("name"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Utensil> allUtensils() {
+        return utensilRepository.findAll(Sort.by("name"));
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Long> allergenIds(User user) {
+        return findById(user.getId()).getAllergies().stream()
+                .map(Allergen::getId)
+                .collect(Collectors.toSet());
+    }
+
+    @Transactional(readOnly = true)
+    public Set<Long> utensilIds(User user) {
+        return findById(user.getId()).getUtensils().stream()
+                .map(Utensil::getId)
+                .collect(Collectors.toSet());
+    }
+
+    // N-N: the ticked boxes replace the whole list; no box ticked means no allergy
+    @Transactional
+    public void updateAllergies(User user, Set<Long> allergenIds) {
+        User managed = findById(user.getId());
+        managed.getAllergies().clear();
+        if (allergenIds != null) {
+            managed.getAllergies().addAll(allergenRepository.findAllById(allergenIds));
+        }
+    }
+
+    // N-N: the ticked boxes replace the whole list; no box ticked means no utensil
+    @Transactional
+    public void updateUtensils(User user, Set<Long> utensilIds) {
+        User managed = findById(user.getId());
+        managed.getUtensils().clear();
+        if (utensilIds != null) {
+            managed.getUtensils().addAll(utensilRepository.findAllById(utensilIds));
+        }
     }
 
     static String normalizeEmail(String email) {
