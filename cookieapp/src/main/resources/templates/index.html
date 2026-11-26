@@ -48,10 +48,8 @@
                th:classappend="${filter == 'vegetarian'} ? 'bg-primary text-cream' : 'bg-white'">🥕 Végétarien</a>
             <a th:href="@{/(filter='express')}" class="rounded-full px-4 py-1"
                th:classappend="${filter == 'express'} ? 'bg-primary text-cream' : 'bg-white'">⚡ Express</a>
-            <!--/* Enable once AmiraO's PriceService.costPerServing exists
             <a th:href="@{/(filter='budget')}" class="rounded-full px-4 py-1"
-               th:classappend="${filter == 'budget'} ? 'bg-primary text-cream' : 'bg-white'">💶 ≤ 3 €/pers.</a>
-            */-->
+   th:classappend="${filter == 'budget'} ? 'bg-primary text-cream' : 'bg-white'">💶 ≤ 3 €/pers.</a>
         </nav>
 
         <p th:if="${#lists.isEmpty(recettes)}" class="mt-8 rounded-2xl bg-white p-8 text-center text-dark/70">
