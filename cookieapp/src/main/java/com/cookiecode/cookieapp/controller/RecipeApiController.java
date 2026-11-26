@@ -35,7 +35,7 @@ public class RecipeApiController {
 
     @GetMapping
     public ResponseEntity<List<RecipeDTO>> findAll() {
-        List<RecipeDTO> dtos = recipeService.lister().stream()
+        List<RecipeDTO> dtos = recipeService.findAll().stream()
                 .map(this::toDto)
                 .toList();
         return ResponseEntity.ok(dtos);
@@ -43,7 +43,7 @@ public class RecipeApiController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RecipeDTO> findById(@PathVariable Long id) {
-        Recipe recipe = recipeService.findById(id); // 404 si introuvable
+        Recipe recipe = recipeService.findById(id); // 404 if not found
         return ResponseEntity.ok(toDto(recipe));
     }
 
@@ -56,13 +56,13 @@ public class RecipeApiController {
     @PutMapping("/{id}")
     public ResponseEntity<RecipeDTO> update(@PathVariable Long id,
                                             @Valid @RequestBody RecipeDTO dto) {
-        Recipe updated = recipeService.updateFromDto(id, dto); // 200 (ou 404 si id inexistant)
+        Recipe updated = recipeService.updateFromDto(id, dto); // 200 (or 404 if not found)
         return ResponseEntity.ok(toDto(updated));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        recipeService.deleteById(id); // 204 (ou 404 si id inexistant)
+        recipeService.deleteById(id); // 204 (or 404 if not found)
         return ResponseEntity.noContent().build();
     }
 
